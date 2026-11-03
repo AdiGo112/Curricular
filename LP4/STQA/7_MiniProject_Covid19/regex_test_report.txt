@@ -1,0 +1,57 @@
+COVID-19 Portal - Regular Expression Test Report (Python)
+
+ID    Field      Input                             Expected  Actual    Result
+--------------------------------------------------------------------------------
+RT01  full_name  'Aditya Gorane'                   valid     valid     PASS   Two words
+RT02  full_name  'Asha'                            valid     valid     PASS   Single word
+RT03  full_name  'Aditya  Gorane'                  invalid   invalid   PASS   Double space
+RT04  full_name  'Aditya123'                       invalid   invalid   PASS   Contains digits
+RT05  full_name  ' Aditya'                         invalid   invalid   PASS   Leading space
+RT06  full_name  ''                                invalid   invalid   PASS   Empty
+RT07  username   'adi_112'                         valid     valid     PASS   Letters, digits, underscore
+RT08  username   'abcd'                            valid     valid     PASS   Minimum length 4
+RT09  username   'abc'                             invalid   invalid   PASS   Length 3 (below minimum)
+RT10  username   'a23456789012345'                 valid     valid     PASS   Maximum length 15
+RT11  username   'a234567890123456'                invalid   invalid   PASS   Length 16 (above maximum)
+RT12  username   '1adi'                            invalid   invalid   PASS   Starts with digit
+RT13  username   'adi go'                          invalid   invalid   PASS   Contains space
+RT14  email      'student@gmail.com'               valid     valid     PASS   Normal email
+RT15  email      'first.last+covid@college.edu.in  valid     valid     PASS   Dots, plus, sub-domain
+RT16  email      'studentgmail.com'                invalid   invalid   PASS   Missing @
+RT17  email      'student@gmail'                   invalid   invalid   PASS   Missing top-level domain
+RT18  email      'student@.com'                    invalid   invalid   PASS   Empty domain name
+RT19  email      'stu dent@gmail.com'              invalid   invalid   PASS   Space inside
+RT20  email      'student@gmail.c'                 invalid   invalid   PASS   TLD of 1 letter
+RT21  phone      '9876543210'                      valid     valid     PASS   Valid mobile
+RT22  phone      '6000000000'                      valid     valid     PASS   Starts with 6 (boundary)
+RT23  phone      '5876543210'                      invalid   invalid   PASS   Starts with 5
+RT24  phone      '987654321'                       invalid   invalid   PASS   9 digits
+RT25  phone      '98765432100'                     invalid   invalid   PASS   11 digits
+RT26  phone      '98765abcde'                      invalid   invalid   PASS   Contains letters
+RT27  phone      '+919876543210'                   invalid   invalid   PASS   Country code not allowed
+RT28  age        '1'                               valid     valid     PASS   Minimum 1
+RT29  age        '45'                              valid     valid     PASS   Middle value
+RT30  age        '120'                             valid     valid     PASS   Maximum 120
+RT31  age        '0'                               invalid   invalid   PASS   Zero
+RT32  age        '121'                             invalid   invalid   PASS   Above maximum
+RT33  age        '07'                              invalid   invalid   PASS   Leading zero
+RT34  age        '-5'                              invalid   invalid   PASS   Negative
+RT35  pincode    '411001'                          valid     valid     PASS   Pune pincode
+RT36  pincode    '011001'                          invalid   invalid   PASS   Starts with 0
+RT37  pincode    '41100'                           invalid   invalid   PASS   5 digits
+RT38  pincode    '4110011'                         invalid   invalid   PASS   7 digits
+RT39  password   'Covid@2026'                      valid     valid     PASS   All rules satisfied
+RT40  password   'Ab1@abcd'                        valid     valid     PASS   Exactly 8 characters
+RT41  password   'Ab1@abc'                         invalid   invalid   PASS   7 characters
+RT42  password   'covid@2026'                      invalid   invalid   PASS   No upper case
+RT43  password   'COVID@2026'                      invalid   invalid   PASS   No lower case
+RT44  password   'Covid@abcd'                      invalid   invalid   PASS   No digit
+RT45  password   'Covid2026'                       invalid   invalid   PASS   No special character
+RT46  password   'Covid@2026 x'                    invalid   invalid   PASS   Contains space
+RT47  password   'Covid@2026abcdefghijk'           invalid   invalid   PASS   21 characters
+RT48  comment    'Vaccination centre at Aundh is   valid     valid     PASS   Normal comment
+RT49  comment    'Line one\nLine two'              valid     valid     PASS   Multi-line comment
+RT50  comment    "<script>alert('xss')</script>"   invalid   invalid   PASS   Script tag (XSS)
+RT51  comment    ''                                invalid   invalid   PASS   Empty comment
+--------------------------------------------------------------------------------
+Total: 51   Passed: 51   Failed: 0   Pass rate: 100.0%

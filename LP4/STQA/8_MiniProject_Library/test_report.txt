@@ -1,0 +1,75 @@
+==============================================================================
+ Library Management System - Test Report
+ Date: 2026-11-03 21:51
+==============================================================================
+Suite                 Test case                             Result 
+------------------------------------------------------------------------------
+BlackBoxCatalogue     test_add_blank_title                  PASS   
+                        EP: blank title rejected
+BlackBoxCatalogue     test_add_existing_increases_copies    PASS   
+                        EP: adding same ISBN adds copies
+BlackBoxCatalogue     test_add_invalid_isbn                 PASS   
+                        EP: invalid ISBN rejected
+BlackBoxCatalogue     test_add_zero_copies                  PASS   
+                        BVA: copies = 0 rejected (minimum is 1)
+BlackBoxCatalogue     test_search_case_insensitive          PASS   
+                        EP: search ignores case
+BlackBoxCirculation   test_no_copies_left                   PASS   
+                        BVA: available = 0 refused
+BlackBoxCirculation   test_return_not_issued                PASS   
+                        EP: returning a book not issued is an error
+BlackBoxCirculation   test_return_on_due_date               PASS   
+                        BVA: return on due date -> no fine
+BlackBoxCirculation   test_return_one_day_late              PASS   
+                        BVA: 1 day late -> Rs 2
+BlackBoxCirculation   test_same_book_twice                  PASS   
+                        EP: member cannot hold two copies of the same book
+BlackBoxCirculation   test_student_due_date                 PASS   
+                        Student loan is 14 days
+BlackBoxCirculation   test_student_limit_boundary           PASS   
+                        BVA: 3rd book allowed, 4th refused for student
+BlackBoxCirculation   test_unknown_book                     PASS   
+                        EP: unknown ISBN cannot be issued
+BlackBoxCirculation   test_unknown_member                   PASS   
+                        EP: unknown member cannot issue
+BlackBoxMembers       test_blank_name                       PASS   
+                        EP: blank name rejected
+BlackBoxMembers       test_duplicate_member                 PASS   
+                        EP: duplicate ID rejected
+BlackBoxMembers       test_invalid_member_type              PASS   
+                        EP: type other than student/faculty rejected
+Integration           test_copies_restored_after_return     PASS   
+                        Catalogue and circulation stay consistent
+Integration           test_fine_blocks_issue_until_paid     PASS   
+                        Issue -> late return -> blocked -> pay fine -> issue allowed
+Integration           test_overpay_rejected                 PASS   
+                        Paying more than the fine is refused
+WhiteBoxFine          test_after_first_week                 PASS   
+                        Branch: > 7 days, Rs 5 after day 7
+WhiteBoxFine          test_cap                              PASS   
+                        Branch: min() cap at Rs 500
+WhiteBoxFine          test_faculty_half                     PASS   
+                        Branch: faculty pays half
+WhiteBoxFine          test_first_week                       PASS   
+                        Branch: 1-7 days at Rs 2
+WhiteBoxFine          test_on_time                          PASS   
+                        Branch: days_late <= 0
+WhiteBoxISBN          test_bad_checksum                     PASS   
+                        Branch: total % 10 != 0
+WhiteBoxISBN          test_non_digit                        PASS   
+                        Branch: not isdigit()
+WhiteBoxISBN          test_valid_with_hyphens               PASS   
+                        Path: correct length, digits, checksum OK
+WhiteBoxISBN          test_wrong_length                     PASS   
+                        Branch: len != 13
+------------------------------------------------------------------------------
+Total: 29   Passed: 29   Failed: 0   Pass rate: 100.0%
+
+Coverage (statement + branch):
+Name         Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------
+library.py      93      0     38      0   100%
+--------------------------------------------------------
+TOTAL           93      0     38      0   100%
+
+Verdict: ACCEPTED

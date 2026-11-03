@@ -1,0 +1,78 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f2f6f9;
+  color: #1d2b36;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: #0b5e7e;
+}
+nav a, nav span { color: #fff; text-decoration: none; margin-left: 14px; }
+nav .brand { margin: 0; font-weight: 700; font-size: 1.15rem; }
+
+main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+
+.hero {
+  text-align: center;
+  padding: 32px 16px;
+  background: linear-gradient(120deg, #0b5e7e, #138d90);
+  color: #fff;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.card h2 { margin-top: 0; color: #0b5e7e; }
+
+table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+th, td { padding: 8px 10px; border-bottom: 1px solid #dde5ea; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { background: #e8f1f5; }
+
+.form-card { max-width: 440px; margin: 0 auto 16px; }
+label { display: block; margin-top: 10px; font-weight: 600; }
+input, select, textarea {
+  width: 100%;
+  padding: 9px;
+  margin-top: 4px;
+  border: 1px solid #b8c7d1;
+  border-radius: 6px;
+  font: inherit;
+}
+input.invalid, textarea.invalid { border-color: #c62828; background: #fff5f5; }
+
+button {
+  margin-top: 14px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 6px;
+  background: #0b5e7e;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: #094a63; }
+
+.error { display: block; color: #c62828; font-size: 0.9rem; min-height: 1em; }
+.success { color: #2e7d32; }
+
+.comments { list-style: none; padding: 0; }
+.comments li { border-top: 1px solid #e3e9ee; padding: 10px 0; }
+.comments p { margin: 4px 0 0; }
+
+footer { text-align: center; padding: 20px; color: #5b6b77; }

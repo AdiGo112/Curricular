@@ -1,0 +1,34 @@
+{
+  "full_name": {
+    "pattern": "[A-Za-z]+( [A-Za-z]+){0,3}",
+    "message": "Name: letters only, 1-4 words, single spaces"
+  },
+  "username": {
+    "pattern": "[A-Za-z][A-Za-z0-9_]{3,14}",
+    "message": "Username: 4-15 characters, starts with a letter, letters/digits/_ only"
+  },
+  "email": {
+    "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}",
+    "message": "Enter a valid email address"
+  },
+  "phone": {
+    "pattern": "[6-9][0-9]{9}",
+    "message": "Phone: 10-digit Indian mobile number starting with 6-9"
+  },
+  "age": {
+    "pattern": "(1[01][0-9]|120|[1-9][0-9]?)",
+    "message": "Age: 1-120"
+  },
+  "pincode": {
+    "pattern": "[1-9][0-9]{5}",
+    "message": "Pincode: 6 digits, cannot start with 0"
+  },
+  "password": {
+    "pattern": "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&#])[A-Za-z0-9@$!%*?&#]{8,20}",
+    "message": "Password: 8-20 chars with upper, lower, digit and special (@$!%*?&#)"
+  },
+  "comment": {
+    "pattern": "[^<>]{1,500}",
+    "message": "Comment: 1-500 characters, < and > not allowed"
+  }
+}

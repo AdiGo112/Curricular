@@ -1,3 +1,6 @@
 .venv
 .vscode
 draw.excalidraw
+__pycache__/
+.coverage
+htmlcov/
