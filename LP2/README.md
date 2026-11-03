@@ -1,0 +1,190 @@
+# LP2 AI Lab Practical Codes
+
+This repository contains Python implementations for the LP2 Artificial Intelligence laboratory practical assignments. The programs are organized according to the practical groups and can be run independently from the terminal.
+
+## Practical List
+
+### Group A
+
+All assignments are compulsory.
+
+1. Implement Depth First Search and Breadth First Search using an undirected graph. Develop a recursive algorithm for searching all vertices of a graph or tree data structure.
+2. Implement A* algorithm for any game search problem.
+3. Implement Greedy search algorithm for any one of the following applications:
+   - Selection Sort
+   - Single-Source Shortest Path Problem
+   - Job Scheduling Problem
+   - Prim's Minimal Spanning Tree Algorithm
+   - Kruskal's Minimal Spanning Tree Algorithm
+
+### Group B
+
+4. Implement a solution for a Constraint Satisfaction Problem using Branch and Bound and Backtracking for the N-Queens problem or Graph Coloring problem.
+5. Develop an elementary chatbot for any suitable customer interaction application.
+
+### Group C
+
+6. Implement any one Expert System:
+   - Information management
+   - Hospitals and medical facilities
+   - Help desk management
+   - Employee performance evaluation
+   - Stock market trading
+   - Airline scheduling and cargo schedules
+
+## Repository Structure
+
+```text
+LP2/
+|-- AStar.py
+|-- graphTraversal.py
+|-- graphColoring.py
+|-- n-queens.py
+|-- chatot.py
+|-- Greedy/
+|   |-- seleSort.py
+|   |-- DijkstrasSSSP.py
+|   |-- JSP.py
+|   |-- PrimsMST.py
+|   `-- KruskalsMST.py
+`-- ExpertSystem/
+    |-- infoManagement.py
+    |-- hospital.py
+    |-- helpDesk.py
+    |-- employee.py
+    |-- stockMarket.py
+    `-- airline.py
+```
+
+## Requirements
+
+- Python 3.x
+- No external Python libraries are required.
+- Some programs are interactive and require keyboard input.
+
+Check Python installation:
+
+```bash
+python --version
+```
+
+## How to Run
+
+Open a terminal in the project root folder and run any program using:
+
+```bash
+python <file_path>
+```
+
+Example:
+
+```bash
+python LP2/graphTraversal.py
+```
+
+On some systems, use `python3` instead of `python`.
+
+## Assignment-Wise Guide
+
+| Assignment | Program | Description | Run Command |
+| --- | --- | --- | --- |
+| Group A - DFS and BFS | `LP2/graphTraversal.py` | Performs DFS recursively and BFS using a queue on an undirected graph. | `python LP2/graphTraversal.py` |
+| Group A - A* Search | `LP2/AStar.py` | Solves an 8-puzzle game search problem using A* and Manhattan distance heuristic. | `python LP2/AStar.py` |
+| Group A - Selection Sort | `LP2/Greedy/seleSort.py` | Sorts an array using the greedy selection sort approach. | `python LP2/Greedy/seleSort.py` |
+| Group A - Dijkstra SSSP | `LP2/Greedy/DijkstrasSSSP.py` | Finds shortest paths from a single source using Dijkstra's algorithm. | `python LP2/Greedy/DijkstrasSSSP.py` |
+| Group A - Job Scheduling | `LP2/Greedy/JSP.py` | Schedules jobs according to deadline and profit to maximize total profit. | `python LP2/Greedy/JSP.py` |
+| Group A - Prim's MST | `LP2/Greedy/PrimsMST.py` | Builds a minimum spanning tree using Prim's algorithm with adjacency list and matrix examples. | `python LP2/Greedy/PrimsMST.py` |
+| Group A - Kruskal's MST | `LP2/Greedy/KruskalsMST.py` | Builds a minimum spanning tree using Kruskal's algorithm and union-find. | `python LP2/Greedy/KruskalsMST.py` |
+| Group B - Graph Coloring CSP | `LP2/graphColoring.py` | Solves graph coloring using backtracking and branch and bound. | `python LP2/graphColoring.py` |
+| Group B - N-Queens CSP | `LP2/n-queens.py` | Solves N-Queens using backtracking and branch and bound. | `python LP2/n-queens.py` |
+| Group B - Chatbot | `LP2/chatot.py` | Simple SmartShop customer support chatbot. | `python LP2/chatot.py` |
+| Group C - Information Management | `LP2/ExpertSystem/infoManagement.py` | Menu-based employee record management expert system. | `python LP2/ExpertSystem/infoManagement.py` |
+| Group C - Hospital | `LP2/ExpertSystem/hospital.py` | Gives basic advice based on symptoms. | `python LP2/ExpertSystem/hospital.py` |
+| Group C - Help Desk | `LP2/ExpertSystem/helpDesk.py` | Gives troubleshooting suggestions for common technical issues. | `python LP2/ExpertSystem/helpDesk.py` |
+| Group C - Employee Evaluation | `LP2/ExpertSystem/employee.py` | Evaluates employee performance from score inputs. | `python LP2/ExpertSystem/employee.py` |
+| Group C - Stock Market | `LP2/ExpertSystem/stockMarket.py` | Gives buy, sell, or hold suggestions based on market condition. | `python LP2/ExpertSystem/stockMarket.py` |
+| Group C - Airline Scheduling | `LP2/ExpertSystem/airline.py` | Displays flight and cargo schedule information. | `python LP2/ExpertSystem/airline.py` |
+
+## Sample Usage
+
+### DFS and BFS
+
+```bash
+python LP2/graphTraversal.py
+```
+
+Output shows:
+
+- DFS traversal from vertex `A`
+- BFS traversal from vertex `A`
+
+### N-Queens
+
+```bash
+python LP2/n-queens.py
+```
+
+Sample input:
+
+```text
+Enter value of N: 4
+```
+
+The program prints one valid board arrangement using both backtracking and branch and bound.
+
+### Chatbot
+
+```bash
+python LP2/chatot.py
+```
+
+Sample inputs:
+
+```text
+hi
+order status
+payment methods
+return policy
+delivery details
+exit
+```
+
+### Stock Market Expert System
+
+```bash
+python LP2/ExpertSystem/stockMarket.py
+```
+
+Sample inputs:
+
+```text
+rising
+falling
+stable
+exit
+```
+
+## Notes for Students
+
+- Each file contains a complete standalone implementation with driver code.
+- Input data such as graphs, jobs, arrays, and schedules are already included in the programs.
+- To test with custom data, edit the sample input structures inside the corresponding Python file.
+- Interactive programs can be stopped using their menu exit option or by typing `exit`, depending on the program.
+- These programs are designed to help understand AI search techniques, greedy algorithms, CSP methods, chatbot logic, and rule-based expert systems.
+- These programs are intended for learning and understanding the implementation, not just for copy-pasting.
+
+## Topics Covered
+
+- Graph traversal
+- Recursive DFS
+- Queue-based BFS
+- A* search
+- Manhattan distance heuristic
+- Greedy algorithms
+- Shortest path algorithms
+- Minimum spanning tree
+- Constraint satisfaction problem
+- Backtracking
+- Branch and bound
+- Rule-based chatbot
+- Rule-based expert systems
