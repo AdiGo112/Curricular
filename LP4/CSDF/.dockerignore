@@ -1,0 +1,10 @@
+**/__pycache__
+**/samples
+**/reports
+**/recovered
+**/crime_scene
+**/case_2026_041
+**/*.img
+**/*.log
+**/*.jsonl
+Dockerfile

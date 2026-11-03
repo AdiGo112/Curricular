@@ -8,7 +8,7 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document describes the functional and non-functional requirements of **TaskTrack**. It is meant for developers, testers and evaluators, and it is the basis for the test plan in `9_MiniProject/test_plan.md`.
+This document describes the functional and non-functional requirements of **TaskTrack**. It is meant for developers, testers and evaluators, and it is the basis for the test plan in `9_MiniProject_TestIntegration/test_plan.md`.
 
 ### 1.2 Scope
 TaskTrack is a small web application. Users register, log in, and manage a personal to-do list (add, complete and delete tasks). It runs in any modern browser. Online collaboration, reminders and mobile apps are out of scope.
@@ -130,7 +130,7 @@ TaskTrack is a new, self-contained web application with a browser front-end and 
 
 ## 4. Requirement Traceability (Requirement → Test)
 
-| Requirement | Test Cases (`9_MiniProject/test_plan.md`) |
+| Requirement | Test Cases (`9_MiniProject_TestIntegration/test_plan.md`) |
 | --- | --- |
 | FR1.2 | TC02, TC03, TC04 |
 | FR1.3 | TC05 |

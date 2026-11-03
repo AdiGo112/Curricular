@@ -26,7 +26,9 @@ import threading
 import unittest
 
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from werkzeug.serving import make_server
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -47,6 +49,11 @@ def make_driver():
     opts = webdriver.ChromeOptions()
     if headless:
         opts.add_argument("--headless=new")
+    if os.environ.get("CHROME_BIN"):         # Docker image: use its Chromium (runs as root, small /dev/shm)
+        opts.binary_location = os.environ["CHROME_BIN"]
+        opts.add_argument("--no-sandbox")
+        opts.add_argument("--disable-dev-shm-usage")
+        return webdriver.Chrome(options=opts, service=webdriver.ChromeService(os.environ["CHROMEDRIVER"]))
     return webdriver.Chrome(options=opts)   # Selenium Manager downloads the driver
 
 
@@ -74,23 +81,38 @@ class TaskTrackRegression(unittest.TestCase):
     def find(self, css):
         return self.driver.find_element(By.CSS_SELECTOR, css)
 
+    def click_and_wait(self, css):
+        """Click something that loads a new page, and wait until the old page is gone.
+        click() returns before the next page arrives, so reading the page straight
+        away can still see the OLD page (flaky on slower machines / Docker)."""
+        old_page = self.find("html")
+        self.find(css).click()
+
+        def old_page_gone(_):
+            try:
+                old_page.is_enabled()
+                return False
+            except WebDriverException:     # stale element, or Chrome's "node does not belong to the
+                return True                # document" error during navigation: both mean the page changed
+        WebDriverWait(self.driver, 10).until(old_page_gone)
+
     def fill(self, **fields):
         for field_id, value in fields.items():
             box = self.find("#" + field_id)
             box.clear()
             box.send_keys(value)
-        self.find("#submit").click()
+        self.click_and_wait("#submit")
 
     def register_and_login(self, user="seluser", pwd="pass12"):
         self.driver.get(BASE + "/register")
         self.fill(username=user, password=pwd, confirm=pwd)
-        self.driver.get(BASE + "/login")   # fresh page avoids stale elements
+        self.driver.get(BASE + "/login")
         self.fill(username=user, password=pwd)
 
     def add_task(self, title):
         box = self.find("#task-title")
         box.send_keys(title)
-        self.find("#add-task").click()
+        self.click_and_wait("#add-task")
 
     # ---------- regression test cases ----------
 
@@ -141,20 +163,20 @@ class TaskTrackRegression(unittest.TestCase):
         """RT-08: Done link marks task completed"""
         self.register_and_login()
         self.add_task("Run regression")
-        self.find(".complete").click()
+        self.click_and_wait(".complete")
         self.assertIn("done", self.find(".task").get_attribute("class"))
 
     def test_09_delete_task(self):
         """RT-09: Delete link removes the task"""
         self.register_and_login()
         self.add_task("Temporary task")
-        self.find(".delete").click()
+        self.click_and_wait(".delete")
         self.assertEqual(self.find("#count").text, "0 task(s)")
 
     def test_10_logout(self):
         """RT-10: Logout blocks access to tasks page"""
         self.register_and_login()
-        self.find("#logout").click()
+        self.click_and_wait("#logout")
         self.driver.get(BASE + "/tasks")
         self.assertEqual(self.find("#heading").text, "Login")
 

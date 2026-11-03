@@ -5,8 +5,9 @@
 
 session_start();
 
-// XAMPP defaults - change if your MySQL has a password
-$db = new mysqli("localhost", "root", "", "covid_portal");
+// XAMPP defaults; Docker sets DB_HOST / DB_USER / DB_PASS (see compose.yaml)
+$db = new mysqli(getenv("DB_HOST") ?: "localhost", getenv("DB_USER") ?: "root",
+                 getenv("DB_PASS") ?: "", "covid_portal");
 if ($db->connect_error) {
     die("Database connection failed: " . $db->connect_error);
 }

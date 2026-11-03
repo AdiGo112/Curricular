@@ -1,0 +1,53 @@
+# STQA lab in Docker
+#
+#   docker compose up --build -d covid-web tasktrack
+#       COVID-19 site (Mini Project 7) -> http://localhost:8081
+#       TaskTrack     (Mini Project 9) -> http://localhost:5000
+#
+#   docker compose run --rm tests
+#       runs every STQA test suite, including the functional tests
+#       against the live PHP + MySQL site
+#
+#   docker compose down -v     stop everything and delete the database
+
+services:
+  covid-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: stqa-root     # lab-only password
+    volumes:
+      - ./7_MiniProject_Covid19/database.sql:/docker-entrypoint-initdb.d/database.sql:ro
+      - covid-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-pstqa-root"]
+      interval: 5s
+      retries: 30
+
+  covid-web:
+    build: ./7_MiniProject_Covid19
+    ports:
+      - "8081:80"
+    environment:
+      DB_HOST: covid-db
+      DB_USER: root
+      DB_PASS: stqa-root
+    depends_on:
+      covid-db:
+        condition: service_healthy
+
+  tasktrack:
+    build: .
+    command: ["flask", "--app", "9_MiniProject_TestIntegration/app", "run", "--host", "0.0.0.0"]
+    ports:
+      - "5000:5000"
+
+  tests:
+    build: .
+    environment:
+      COVID_URL: http://covid-web
+    depends_on:
+      - covid-web
+    profiles: ["test"]     # only started by "docker compose run tests"
+
+volumes:
+  covid-data:

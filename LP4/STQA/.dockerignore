@@ -1,0 +1,8 @@
+**/__pycache__
+**/.coverage
+**/htmlcov
+**/*.png
+**/test_report*.txt
+SocialMedia_TestCases.xlsx
+compose.yaml
+Dockerfile

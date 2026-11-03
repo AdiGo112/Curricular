@@ -27,6 +27,8 @@
 # =========================================================
 
 import argparse
+import os
+import sys
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -38,6 +40,9 @@ URL = "https://www.selenium.dev/selenium/web/web-form.html"
 
 def create_driver(browser, grid_url):
     options = webdriver.EdgeOptions() if browser == "edge" else webdriver.ChromeOptions()
+    if os.environ.get("HEADLESS") == "1":
+        options.add_argument("--headless=new")
+        options.add_argument("--window-size=1366,900")   # default headless window is too small to click everything
 
     if grid_url:
         # Remote WebDriver: the Grid hub picks a node that has this browser
@@ -46,7 +51,14 @@ def create_driver(browser, grid_url):
 
     # Local WebDriver: Selenium Manager downloads the right driver automatically
     print(f"Running locally on {browser}")
-    return webdriver.Edge(options=options) if browser == "edge" else webdriver.Chrome(options=options)
+    if browser == "edge":
+        return webdriver.Edge(options=options)
+    if os.environ.get("CHROME_BIN"):         # Docker image: use its Chromium (runs as root, small /dev/shm)
+        options.binary_location = os.environ["CHROME_BIN"]
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        return webdriver.Chrome(options=options, service=webdriver.ChromeService(os.environ["CHROMEDRIVER"]))
+    return webdriver.Chrome(options=options)
 
 
 def run_test(driver):
@@ -110,3 +122,4 @@ if __name__ == "__main__":
 
     passed = sum(1 for _, r in results if r == "PASS")
     print(f"\nTotal: {len(results)}   Passed: {passed}   Failed: {len(results) - passed}")
+    sys.exit(0 if passed == len(results) else 1)

@@ -1,0 +1,20 @@
+# =========================================================
+# Custom Snort rules for the CSDF lab   (local.rules)
+# Snort 2.9: include $RULE_PATH/local.rules in snort.conf
+# Snort 3  : snort -c snort.lua -R local.rules
+# Local rules use SIDs >= 1000000
+# =========================================================
+
+# --- Reconnaissance ---
+alert icmp any any -> $HOME_NET any (msg:"ICMP Ping (echo request)"; itype:8; sid:1000001; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"Possible SYN port scan"; flags:S; detection_filter:track by_src, count 10, seconds 5; sid:1000002; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"Nmap XMAS scan"; flags:FPU; sid:1000003; rev:1;)
+
+# --- Web attacks ---
+alert tcp any any -> $HOME_NET 80 (msg:"SQL injection - UNION SELECT"; content:"UNION"; nocase; content:"SELECT"; nocase; sid:1000004; rev:1;)
+alert tcp any any -> $HOME_NET 80 (msg:"SQL injection - OR 1=1"; pcre:"/'(\s|%20|\+)*or(\s|%20|\+)*'?1'?=/i"; sid:1000005; rev:1;)
+alert tcp any any -> $HOME_NET 80 (msg:"Path traversal attempt"; content:"../"; sid:1000006; rev:1;)
+
+# --- Insecure (cleartext) protocols ---
+alert tcp any any -> $HOME_NET 21 (msg:"FTP cleartext password sent"; content:"PASS "; sid:1000007; rev:1;)
+alert tcp any any -> $HOME_NET 23 (msg:"Telnet connection attempt"; flags:S; sid:1000008; rev:1;)

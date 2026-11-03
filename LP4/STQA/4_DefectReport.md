@@ -3,7 +3,7 @@
 ## What is a Defect Report?
 A defect (bug) report records a difference between the **expected** and the **actual** behaviour of an application. It gives developers enough information to reproduce, fix and verify the problem.
 
-**Application under test:** TaskTrack web application (the Mini Project in `9_MiniProject/`). Both defects below were really found while testing it.
+**Application under test:** TaskTrack web application (the Mini Project in `9_MiniProject_TestIntegration/`). Both defects below were really found while testing it.
 
 ---
 

@@ -164,3 +164,4 @@ if __name__ == "__main__":
     print("-" * 78)
     print(f"Total: {total}   Passed: {passed}   Failed: {total - passed}")
     print("All scenarios passed." if passed == total else "Some scenarios FAILED - check above.")
+    raise SystemExit(0 if passed == total else 1)
