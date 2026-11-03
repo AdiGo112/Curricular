@@ -1,5 +1,7 @@
 # STQA: Software Testing and Quality Assurance (410245(D))
 
+**Study notes:** [`Explanations/`](Explanations/README.md) has one file per assignment with theory, a code walkthrough, how to run it and viva questions.
+
 ```bash
 pip install -r LP4/STQA/requirements.txt
 python LP4/STQA/run_all.py          # runs every test suite (Selenium headless)

@@ -74,4 +74,13 @@ Result: **51 / 51 passed** in both Python and JavaScript. The test cases use:
 | TC14 | Logout | Click Logout | Session ends, comment box hidden |
 | TC15 | Responsive layout | Open on a phone-width screen | Cards stack, table scrolls sideways |
 
-> **Note:** the regex rules and test cases were run and pass. The PHP pages were written for XAMPP but not run on the development machine (it has no PHP or MySQL installed), so run TC01–TC15 after the XAMPP setup above.
+### Automated functional tests
+
+`test_site.py` runs 12 of these cases (TC01, TC02, TC04–TC06, TC08–TC14) through real HTTP requests against the running site:
+
+```bash
+python test_site.py                                  # site at http://localhost:8081 (Docker)
+COVID_URL=http://localhost/covid19 python test_site.py   # site on XAMPP
+```
+
+Result in Docker (`docker compose run --rm tests` from `LP4/STQA`): **12/12 passed**, and the `users` table stores bcrypt hashes (`$2y$10$…`) (TC07). TC03 (live JS feedback) and TC15 (phone layout) are checked by hand in the browser.

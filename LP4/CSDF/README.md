@@ -1,5 +1,7 @@
 # CSDF: Cyber Security and Digital Forensics (410244(C))
 
+**Study notes:** [`Explanations/`](Explanations/README.md) has one file per assignment with theory, a code walkthrough, how to run it and viva questions.
+
 ```bash
 pip install -r LP4/CSDF/requirements.txt
 ```

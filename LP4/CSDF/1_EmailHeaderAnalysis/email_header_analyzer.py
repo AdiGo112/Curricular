@@ -93,7 +93,13 @@ def trace_route(msg):
         m = RECEIVED_RE.search(text)
         if not m:
             continue
-        ips = [ip for ip in IP_RE.findall(m.group("info") or m.group("from")) if ip_kind(ip) != "invalid"]
+        # IPs inside (...) were recorded by the RECEIVING server, so they can be trusted;
+        # the name right after "from" is whatever the sender claimed (HELO), so use it only as a fallback.
+        # e.g. "from [192.168.1.23] (static.isp.net.in [49.36.112.45])" -> 49.36.112.45
+        #      "from unknown (HELO college.edu.in) (103.21.58.9)"         -> 103.21.58.9
+        sender_part = text[m.start("from"):m.start("by")]
+        verified = " ".join(re.findall(r"\(([^)]*)\)", sender_part))
+        ips = [ip for ip in IP_RE.findall(verified) or IP_RE.findall(sender_part) if ip_kind(ip) != "invalid"]
         try:
             when = parsedate_to_datetime(m.group("date").strip())
         except (TypeError, ValueError):
@@ -312,13 +318,18 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(1)
 
-    verdicts = {}
+    verdicts, reports = {}, {}
     for path in files:
         report, verdict = analyse(path)
         verdicts[os.path.basename(path)] = verdict
+        reports[os.path.basename(path)] = report
         print(report + "\n")
 
     if args.demo:
         assert verdicts == {"genuine.eml": "SAFE", "phishing_bank.eml": "SPOOFED / PHISHING",
                             "ceo_fraud.eml": "SPOOFED / PHISHING"}, verdicts
-        print("Self-check passed: genuine mail SAFE, both fraud mails detected.")
+        # the sender's real IP, not the mail servers' or a private LAN address
+        for name, ip in (("genuine.eml", "49.36.112.45"), ("phishing_bank.eml", "185.220.101.45"),
+                         ("ceo_fraud.eml", "103.21.58.9")):
+            assert f"Originating IP : {ip} " in reports[name], (name, ip)
+        print("Self-check passed: genuine mail SAFE, both fraud mails detected, all 3 originating IPs traced.")
