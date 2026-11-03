@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- College logo drawn as SVG (the format Inkscape saves). Open in Inkscape to edit. -->
+  <circle cx="60" cy="60" r="56" fill="#0d3b66" stroke="#f4d35e" stroke-width="5"/>
+  <!-- rising sun -->
+  <circle cx="60" cy="70" r="22" fill="#f4d35e"/>
+  <g stroke="#f4d35e" stroke-width="4" stroke-linecap="round">
+    <line x1="60" y1="30" x2="60" y2="40"/>
+    <line x1="32" y1="44" x2="39" y2="51"/>
+    <line x1="88" y1="44" x2="81" y2="51"/>
+    <line x1="22" y1="70" x2="32" y2="70"/>
+    <line x1="98" y1="70" x2="88" y2="70"/>
+  </g>
+  <!-- horizon + open book -->
+  <rect x="14" y="70" width="92" height="40" fill="#0d3b66"/>
+  <path d="M30 76 Q45 70 60 78 Q75 70 90 76 L90 96 Q75 90 60 98 Q45 90 30 96 Z" fill="#ffffff"/>
+  <line x1="60" y1="78" x2="60" y2="98" stroke="#0d3b66" stroke-width="2"/>
+</svg>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Threadline Apparel | Contact</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <nav class="nav">
+    <a class="logo" href="index.html">THREAD<span>LINE</span></a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="men.html">Men</a></li>
+      <li><a href="women.html">Women</a></li>
+      <li><a href="kids.html">Kids</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a class="active" href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Contact &amp; Stores</h1>
+    <p>Questions about an order, sizes or bulk orders? We reply within one working day.</p>
+  </div>
+  <section class="grid">
+    <div class="card">
+      <h3>Customer Care</h3>
+      <p>📞 1800-123-4567 (toll free)<br>✉️ care@threadline.example<br>🕘 Mon-Sat, 9 am - 9 pm</p>
+    </div>
+    <div class="card">
+      <h3>Head Office</h3>
+      <p>3rd Floor, Riverside Plaza,<br>Baner Road, Pune 411045<br>Maharashtra, India</p>
+    </div>
+    <div class="card">
+      <h3>Flagship Stores</h3>
+      <p>Pune &middot; Mumbai &middot; Bengaluru &middot; Hyderabad &middot; Ahmedabad &middot; Delhi</p>
+    </div>
+  </section>
+  <section>
+    <h2>Send us a message</h2>
+    <form id="contact-form">
+      <input name="name" placeholder="Your name" required>
+      <input name="email" type="email" placeholder="Email" required>
+      <select name="topic">
+        <option>Order or delivery</option><option>Size help</option><option>Returns</option><option>Bulk order</option>
+      </select>
+      <textarea name="message" rows="4" placeholder="Message" required></textarea>
+      <button class="btn" type="submit">Send</button>
+      <p id="thanks" hidden>Thank you! We will reply within one working day.</p>
+    </form>
+  </section>
+  <script>
+    // No server in this assignment: just confirm on screen
+    document.getElementById("contact-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      document.getElementById("thanks").hidden = false;
+      e.target.reset();
+    });
+  </script>
+</main>
+
+<footer>
+  <p class="copy"><a href="index.html">Home</a> &middot; <a href="men.html">Men</a> &middot; <a href="women.html">Women</a>
+    &middot; <a href="kids.html">Kids</a> &middot; <a href="about.html">About</a> &middot; <a href="contact.html">Contact</a><br>
+    &copy; 2026 Threadline Apparel Pvt. Ltd. (fictional company for a college assignment)</p>
+</footer>
+</body>
+</html>

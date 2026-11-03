@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!--
+  ASSIGNMENT 1: College webpage designed with open-source tools
+  Logo: logo.svg (vector, Inkscape)   Editor: VS Code / Bluefish
+  Replace "Sunrise Institute of Technology" with your college's name and details.
+  Open index.html in any browser.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sunrise Institute of Technology, Pune - engineering programmes, admissions, departments and campus life.">
+  <title>Sunrise Institute of Technology</title>
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="brand" href="#home">
+      <img src="logo.svg" alt="College logo" width="52" height="52">
+      <span><b>Sunrise Institute of Technology</b><small>Pune &middot; Est. 1998 &middot; NAAC A+</small></span>
+    </a>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#departments">Departments</a>
+      <a href="#admissions">Admissions</a>
+      <a href="#notices">Notices</a>
+      <a href="#gallery">Campus</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section id="home" class="hero">
+  <div>
+    <h1>Engineering minds.<br>Shaping tomorrow.</h1>
+    <p>Undergraduate and postgraduate engineering programmes with industry-ready labs,
+       a 30-acre green campus and 92% placement record.</p>
+    <a class="btn" href="#admissions">Admissions 2026-27</a>
+    <a class="btn ghost" href="#departments">Explore programmes</a>
+  </div>
+  <!-- Campus skyline drawn in SVG -->
+  <svg class="skyline" viewBox="0 0 400 200" aria-hidden="true">
+    <circle cx="320" cy="60" r="34" fill="#f4d35e"/>
+    <rect x="30" y="90" width="80" height="110" fill="#ffffff" opacity="0.9"/>
+    <rect x="120" y="50" width="110" height="150" fill="#ffffff"/>
+    <polygon points="120,50 175,15 230,50" fill="#ee964b"/>
+    <rect x="240" y="110" width="120" height="90" fill="#ffffff" opacity="0.9"/>
+    <g fill="#0d3b66">
+      <rect x="45" y="105" width="15" height="15"/><rect x="80" y="105" width="15" height="15"/>
+      <rect x="45" y="140" width="15" height="15"/><rect x="80" y="140" width="15" height="15"/>
+      <rect x="140" y="70" width="18" height="20"/><rect x="166" y="70" width="18" height="20"/><rect x="192" y="70" width="18" height="20"/>
+      <rect x="140" y="110" width="18" height="20"/><rect x="192" y="110" width="18" height="20"/>
+      <rect x="163" y="150" width="24" height="50"/>
+      <rect x="258" y="130" width="18" height="18"/><rect x="292" y="130" width="18" height="18"/><rect x="326" y="130" width="18" height="18"/>
+    </g>
+  </svg>
+</section>
+
+<main>
+  <section id="about">
+    <h2>About the Institute</h2>
+    <p>Sunrise Institute of Technology was established in 1998 to provide quality technical education.
+       The institute is approved by AICTE and accredited with an A+ grade by NAAC. More than 3,200 students
+       study in six departments, guided by 180 faculty members, 40% of whom hold a Ph.D.</p>
+    <div class="stats">
+      <div><b>3,200+</b>Students</div>
+      <div><b>180</b>Faculty</div>
+      <div><b>92%</b>Placements</div>
+      <div><b>45</b>Labs</div>
+    </div>
+  </section>
+
+  <section id="departments">
+    <h2>Departments</h2>
+    <div class="cards">
+      <article><span>💻</span><h3>Computer Engineering</h3><p>B.E. (180 seats), M.E. AI &amp; ML</p></article>
+      <article><span>🌐</span><h3>Information Technology</h3><p>B.E. (120 seats)</p></article>
+      <article><span>📡</span><h3>Electronics &amp; Telecom</h3><p>B.E. (120 seats), M.E. VLSI</p></article>
+      <article><span>⚙️</span><h3>Mechanical Engineering</h3><p>B.E. (120 seats), M.E. Design</p></article>
+      <article><span>🏗️</span><h3>Civil Engineering</h3><p>B.E. (60 seats)</p></article>
+      <article><span>🤖</span><h3>AI &amp; Data Science</h3><p>B.E. (120 seats)</p></article>
+    </div>
+  </section>
+
+  <section id="admissions">
+    <h2>Admissions 2026-27</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Programme</th><th>Duration</th><th>Eligibility</th><th>Entrance</th></tr>
+        <tr><td>B.E. / B.Tech</td><td>4 years</td><td>12th PCM, 50% (45% reserved)</td><td>MHT-CET / JEE Main</td></tr>
+        <tr><td>Direct Second Year</td><td>3 years</td><td>Diploma in Engineering</td><td>DSE CAP rounds</td></tr>
+        <tr><td>M.E. / M.Tech</td><td>2 years</td><td>B.E. in relevant branch</td><td>GATE / PGCET</td></tr>
+      </table>
+    </div>
+    <p>Institute code: <b>6XXX</b> &middot; Admission office open Mon-Sat, 10 am - 5 pm.</p>
+  </section>
+
+  <section id="notices">
+    <h2>Notice Board</h2>
+    <ul class="notices">
+      <li><time>02 Nov 2026</time> End-semester exam timetable published</li>
+      <li><time>28 Oct 2026</time> Campus placement drive: 14 companies, 9-12 Nov</li>
+      <li><time>20 Oct 2026</time> Techfest "Udaan 2026" registrations open</li>
+      <li><time>15 Oct 2026</time> Scholarship forms due by 30 November</li>
+    </ul>
+  </section>
+
+  <section id="gallery">
+    <h2>Campus Life</h2>
+    <div class="gallery">
+      <figure style="--c:#3c6e71"><span>📚</span><figcaption>Central Library</figcaption></figure>
+      <figure style="--c:#ee964b"><span>🔬</span><figcaption>Research Labs</figcaption></figure>
+      <figure style="--c:#0d3b66"><span>🏏</span><figcaption>Sports Complex</figcaption></figure>
+      <figure style="--c:#8e5572"><span>🎭</span><figcaption>Cultural Fest</figcaption></figure>
+      <figure style="--c:#4f772d"><span>🌳</span><figcaption>Green Campus</figcaption></figure>
+      <figure style="--c:#bc4b51"><span>🏠</span><figcaption>Hostels</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <div class="cards">
+      <article><h3>Address</h3><p>Sunrise Institute of Technology,<br>Hinjawadi Road, Pune 411057</p></article>
+      <article><h3>Phone</h3><p>Office: 020-2XXX-XXXX<br>Admissions: 9XXXXXXXXX</p></article>
+      <article><h3>Email</h3><p>info@sunrise-tech.example<br>admissions@sunrise-tech.example</p></article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2026 Sunrise Institute of Technology &middot; Designed with open-source tools (Inkscape, GIMP, VS Code)</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!--
+  =========================================================
+  ASSIGNMENT 5
+  Immersive 3D Environment: Living Room (static objects)
+  =========================================================
+
+  Built with Three.js (open-source WebGL library). Every
+  object is a STATIC game object built from basic 3D shapes
+  (box, cylinder, sphere, cone, torus): nothing moves.
+  Only the camera can be moved by the viewer.
+
+  Objects: floor, walls, ceiling light, window, sofa, armchair,
+  coffee table, rug, TV unit + TV, bookshelf with books,
+  floor lamp, potted plant, wall paintings, wall clock.
+
+  HOW TO RUN
+    Open index.html in Chrome / Edge / Firefox (needs internet
+    once to load Three.js from the CDN).
+    Drag = look around   Scroll = zoom   Right-drag = move
+    Keys 1-3 = preset camera views
+
+  Blender equivalent: each object below = one mesh in Blender
+  (Add > Mesh > Cube / Cylinder / UV Sphere), scaled and placed
+  the same way, then exported as .glb and loaded with GLTFLoader.
+  =========================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3D Living Room</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #1a1d22; font-family: sans-serif; }
+    #info {
+      position: absolute; top: 12px; left: 12px; padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.55); color: #fff; border-radius: 8px; font-size: 14px; line-height: 1.5;
+    }
+    #info b { color: #ffd479; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+<div id="info">
+  <b>3D Living Room</b> &mdash; static scene<br>
+  Drag: look &nbsp; Scroll: zoom &nbsp; Right-drag: pan<br>
+  Views: <b>1</b> entrance &nbsp; <b>2</b> sofa &nbsp; <b>3</b> top
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+// ---------------- renderer, scene, camera ----------------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1d22);
+
+const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI / 2 - 0.05;
+controls.minDistance = 1.5;
+controls.maxDistance = 14;
+
+const VIEWS = {
+  1: [[3.4, 2.3, 3.3], [-0.6, 0.8, -1.4]],   // corner by the door
+  2: [[0.0, 1.1, -2.9], [0, 1.0, 3.8]],      // sitting on the sofa, facing the TV
+  3: [[0, 11, 0.01], [0, 0, 0]],             // top view (walls are see-through from outside)
+};
+function setView(n) {
+  const [pos, target] = VIEWS[n];
+  camera.position.set(...pos);
+  controls.target.set(...target);
+  controls.update();
+}
+setView(1);
+addEventListener("keydown", (e) => VIEWS[e.key] && setView(e.key));
+
+// ---------------- helpers ----------------
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.8, ...extra });
+
+// Every object goes through this function: create mesh, place it, never move it again
+function add(geometry, material, [x, y, z], rotY = 0, parent = scene) {
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.set(x, y, z);
+  mesh.rotation.y = rotY;
+  mesh.castShadow = mesh.receiveShadow = true;
+  mesh.matrixAutoUpdate = false;          // static object: matrix computed once
+  mesh.updateMatrix();
+  parent.add(mesh);
+  return mesh;
+}
+const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+
+// Wooden floor texture drawn on a canvas (no image files needed)
+function woodTexture() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 512;
+  const g = c.getContext("2d");
+  for (let i = 0; i < 8; i++) {
+    g.fillStyle = `hsl(28, 45%, ${32 + (i % 3) * 5}%)`;
+    g.fillRect(0, i * 64, 512, 62);
+    g.fillStyle = "rgba(0,0,0,0.25)";
+    g.fillRect(0, i * 64 + 62, 512, 2);
+    g.fillRect(((i * 197) % 400) + 50, i * 64, 2, 62);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(3, 3);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+// Painting texture: simple abstract art
+function artTexture(colors) {
+  const c = document.createElement("canvas");
+  c.width = 256; c.height = 192;
+  const g = c.getContext("2d");
+  g.fillStyle = colors[0]; g.fillRect(0, 0, 256, 192);
+  g.fillStyle = colors[1]; g.beginPath(); g.arc(90, 90, 60, 0, Math.PI * 2); g.fill();
+  g.fillStyle = colors[2]; g.fillRect(140, 40, 80, 110);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+// ---------------- room ----------------
+const W = 8, D = 8, H = 3.2;
+add(box(W, 0.1, D), mat(0xffffff, { map: woodTexture() }), [0, -0.05, 0]);              // floor
+// Walls are one-sided planes facing INTO the room: from outside you see
+// through them (dollhouse view), from inside they look solid.
+// They do not cast shadows, so daylight still comes in at the window.
+for (const [x, z, rot, color] of [
+  [0, -D / 2, 0, 0xe8dfd0],               // back wall
+  [-W / 2, 0, Math.PI / 2, 0xd9e2d5],     // left wall (window)
+  [W / 2, 0, -Math.PI / 2, 0xe8dfd0],     // right wall (bookshelf)
+  [0, D / 2, Math.PI, 0xe8dfd0],          // front wall (TV)
+]) add(new THREE.PlaneGeometry(W, H), mat(color), [x, H / 2, z], rot).castShadow = false;
+add(box(W, 0.15, 0.04), mat(0xffffff), [0, 0.075, -D / 2 + 0.07]);                     // skirting
+
+// Window on the left wall (frame + glass + sill)
+add(box(0.06, 1.5, 2.2), mat(0xffffff), [-W / 2 + 0.06, 1.75, -0.5]);
+add(box(0.02, 1.3, 2.0), mat(0xbfe3ff, { emissive: 0x9fd4ff, emissiveIntensity: 0.6 }),
+    [-W / 2 + 0.1, 1.75, -0.5]);
+add(box(0.04, 1.3, 0.05), mat(0xffffff), [-W / 2 + 0.12, 1.75, -0.5]);
+add(box(0.25, 0.05, 2.3), mat(0xffffff), [-W / 2 + 0.15, 0.98, -0.5]);
+
+// Rug
+add(new THREE.CylinderGeometry(1.7, 1.7, 0.02, 48), mat(0x8c3b3b), [0, 0.01, -0.6]);
+add(new THREE.CylinderGeometry(1.4, 1.4, 0.022, 48), mat(0xc9a66b), [0, 0.012, -0.6]);
+
+// ---------------- sofa (against back wall) ----------------
+const sofaMat = mat(0x3f5f7a);
+add(box(2.6, 0.45, 0.95), sofaMat, [0, 0.25, -3.3]);                     // seat base
+add(box(2.6, 0.75, 0.25), sofaMat, [0, 0.75, -3.68]);                    // back rest
+add(box(0.25, 0.65, 0.95), sofaMat, [-1.3, 0.35, -3.3]);                 // arms
+add(box(0.25, 0.65, 0.95), sofaMat, [1.3, 0.35, -3.3]);
+for (const x of [-0.62, 0.62]) add(box(1.15, 0.15, 0.8), mat(0x527a99), [x, 0.53, -3.25]);   // cushions
+add(box(0.4, 0.4, 0.15), mat(0xe0b84c), [-0.9, 0.75, -3.45], 0.2);     // throw pillows
+add(box(0.4, 0.4, 0.15), mat(0xd96a4a), [0.9, 0.75, -3.45], -0.2);
+
+// Armchair (right side, angled)
+const chair = new THREE.Group();
+chair.position.set(2.4, 0, -1.2);
+chair.rotation.y = -Math.PI / 2.6;
+scene.add(chair);
+const chairMat = mat(0x9c6b3f);
+add(box(0.9, 0.4, 0.85), chairMat, [0, 0.25, 0], 0, chair);
+add(box(0.9, 0.7, 0.2), chairMat, [0, 0.7, -0.35], 0, chair);
+add(box(0.15, 0.55, 0.85), chairMat, [-0.45, 0.4, 0], 0, chair);
+add(box(0.15, 0.55, 0.85), chairMat, [0.45, 0.4, 0], 0, chair);
+chair.updateMatrixWorld(true);
+
+// ---------------- coffee table ----------------
+add(box(1.4, 0.06, 0.7), mat(0x5a3a22, { roughness: 0.4 }), [0, 0.45, -1.6]);
+for (const [x, z] of [[-0.62, -1.9], [0.62, -1.9], [-0.62, -1.3], [0.62, -1.3]])
+  add(new THREE.CylinderGeometry(0.03, 0.03, 0.42, 12), mat(0x2b2b2b), [x, 0.21, z]);
+add(new THREE.CylinderGeometry(0.12, 0.1, 0.02, 24), mat(0xffffff), [0.3, 0.49, -1.55]);    // plate
+add(new THREE.CylinderGeometry(0.045, 0.04, 0.1, 16), mat(0xffffff), [-0.3, 0.53, -1.6]);  // cup
+add(new THREE.TorusGeometry(0.03, 0.01, 8, 16), mat(0xffffff), [-0.24, 0.53, -1.6]);
+add(box(0.3, 0.04, 0.22), mat(0x2f6f4f), [0, 0.5, -1.75], 0.3);                              // book
+
+// ---------------- TV unit + TV (facing sofa) ----------------
+add(box(2.2, 0.5, 0.45), mat(0x3a3a3a, { roughness: 0.5 }), [0, 0.25, 3.7]);
+add(box(1.8, 1.0, 0.06), mat(0x111111, { roughness: 0.3 }), [0, 1.15, 3.85]);
+add(box(1.7, 0.92, 0.01), mat(0x1c2a3a, { emissive: 0x24476b, emissiveIntensity: 0.5 }), [0, 1.15, 3.81]);
+add(box(0.6, 0.12, 0.2), mat(0x222222), [0.6, 0.56, 3.65]);                                  // speaker
+
+// ---------------- bookshelf (right wall) ----------------
+const shelfMat = mat(0x6e4a2e);
+const sx = W / 2 - 0.22;
+add(box(0.4, 2.0, 0.06), shelfMat, [sx, 1.0, 1.0]);
+add(box(0.4, 2.0, 0.06), shelfMat, [sx, 1.0, 2.4]);
+for (let i = 0; i < 5; i++) add(box(0.4, 0.04, 1.44), shelfMat, [sx, 0.02 + i * 0.49, 1.7]);
+const bookColors = [0xb03a2e, 0x2e86c1, 0x229954, 0xd4ac0d, 0x7d3c98, 0xca6f1e, 0x566573];
+for (let s = 0; s < 4; s++) {
+  let z = 1.08;
+  for (let b = 0; z < 2.25; b++) {
+    const t = 0.05 + ((s * 7 + b * 3) % 4) * 0.015;
+    const h = 0.28 + ((s + b) % 3) * 0.05;
+    add(box(0.26, h, t), mat(bookColors[(s * 3 + b) % bookColors.length]), [sx - 0.02, 0.04 + s * 0.49 + h / 2, z + t / 2]);
+    z += t + 0.01;
+  }
+}
+
+// ---------------- floor lamp (lights the sofa corner) ----------------
+add(new THREE.CylinderGeometry(0.2, 0.22, 0.04, 24), mat(0x222222), [-1.9, 0.02, -3.3]);
+add(new THREE.CylinderGeometry(0.02, 0.02, 1.6, 12), mat(0x222222), [-1.9, 0.82, -3.3]);
+add(new THREE.ConeGeometry(0.28, 0.35, 24, 1, true), mat(0xfff2cc, { emissive: 0xffd58a, emissiveIntensity: 0.8, side: THREE.DoubleSide }), [-1.9, 1.7, -3.3]);
+
+// ---------------- potted plant ----------------
+add(new THREE.CylinderGeometry(0.22, 0.16, 0.4, 20), mat(0xb5651d), [-3.4, 0.2, 3.3]);
+for (const [x, y, z, r] of [[-3.4, 0.75, 3.3, 0.3], [-3.25, 0.95, 3.2, 0.22], [-3.55, 0.92, 3.4, 0.22], [-3.4, 1.15, 3.3, 0.18]])
+  add(new THREE.SphereGeometry(r, 16, 12), mat(0x2e7d32), [x, y, z]);
+
+// ---------------- wall decor ----------------
+add(box(1.3, 0.9, 0.04), mat(0x3b2a1a), [0, 2.1, -D / 2 + 0.07]);
+add(box(1.2, 0.8, 0.01), new THREE.MeshStandardMaterial({ map: artTexture(["#f4e3c1", "#d95f43", "#2a6f97"]) }), [0, 2.1, -D / 2 + 0.1]);
+add(box(0.04, 0.7, 0.9), mat(0x3b2a1a), [-W / 2 + 0.07, 1.9, 2.4]);
+add(box(0.01, 0.6, 0.8), new THREE.MeshStandardMaterial({ map: artTexture(["#1d3557", "#f1c453", "#a8dadc"]) }), [-W / 2 + 0.1, 1.9, 2.4]);
+// wall clock (cylinder turned to face the room)
+const clock = add(new THREE.CylinderGeometry(0.25, 0.25, 0.04, 32), mat(0xffffff), [2.0, 2.4, -D / 2 + 0.08]);
+clock.rotation.x = Math.PI / 2;
+clock.updateMatrix();
+add(box(0.02, 0.16, 0.01), mat(0x111111), [2.0, 2.46, -D / 2 + 0.11]);
+add(box(0.12, 0.02, 0.01), mat(0x111111), [2.05, 2.4, -D / 2 + 0.11]);
+
+// Ceiling light fixture
+add(new THREE.CylinderGeometry(0.35, 0.35, 0.05, 32), mat(0xffffff, { emissive: 0xfff4e0, emissiveIntensity: 1 }), [0, H - 0.05, 0]);
+
+// ---------------- lighting ----------------
+scene.add(new THREE.HemisphereLight(0xfff4e6, 0x3a2f28, 0.9));
+
+const ceiling = new THREE.PointLight(0xfff1dd, 18, 12, 1.6);
+ceiling.position.set(0, H - 0.3, 0);
+ceiling.castShadow = true;
+ceiling.shadow.mapSize.set(1024, 1024);
+scene.add(ceiling);
+
+const lamp = new THREE.PointLight(0xffc77a, 4, 4, 2);
+lamp.position.set(-1.9, 1.55, -3.3);
+scene.add(lamp);
+
+const sun = new THREE.DirectionalLight(0xcfe8ff, 1.2);   // daylight through the window
+sun.position.set(-8, 4, -0.5);
+sun.target.position.set(0, 0, -0.5);
+sun.castShadow = true;
+scene.add(sun, sun.target);
+
+// ---------------- render loop (only the camera changes) ----------------
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => {
+  controls.update();
+  renderer.render(scene, camera);
+});
+
+window.sceneReady = scene.children.length;   // used by the automated check
+</script>
+</body>
+</html>
