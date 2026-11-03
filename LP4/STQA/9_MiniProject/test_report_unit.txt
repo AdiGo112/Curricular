@@ -1,0 +1,47 @@
+======================================================================
+ TaskTrack - Unit & Integration Test Report
+ Date: 2026-11-03 21:28
+======================================================================
+Test Case                                     Result  
+----------------------------------------------------------------------
+WhiteBoxValidation.test_password_no_digit     PASS    
+    Branch 2: no digit
+WhiteBoxValidation.test_password_too_short    PASS    
+    Branch 1: len < 6
+WhiteBoxValidation.test_password_valid        PASS    
+    Branch 3: all checks pass
+WhiteBoxValidation.test_task_blank            PASS    
+    Branch 1: empty after strip
+WhiteBoxValidation.test_task_too_long         PASS    
+    Branch 2: more than 50 characters
+WhiteBoxValidation.test_task_valid            PASS    
+    Branch 3: valid title
+WhiteBoxValidation.test_username_special_char PASS    
+    Branch: regex fails (invalid character)
+WhiteBoxValidation.test_username_too_short    PASS    
+    Branch: regex fails (length 2)
+WhiteBoxValidation.test_username_valid        PASS    
+    Branch: regex matches -> no error
+BlackBoxRegister.test_duplicate_user_case_insensitive PASS    
+    EP: same username in different case -> error
+BlackBoxRegister.test_password_mismatch       PASS    
+    EP: confirm password differs -> error
+BlackBoxRegister.test_username_boundary_max   PASS    
+    BVA: username length 15 (max) is accepted
+BlackBoxRegister.test_username_boundary_min   PASS    
+    BVA: username length 3 (min) is accepted
+BlackBoxRegister.test_username_boundary_over  PASS    
+    BVA: username length 16 is rejected
+BlackBoxLogin.test_login_empty_fields         PASS    
+    EP: empty username and password
+BlackBoxLogin.test_login_wrong_password       PASS    
+    EP: registered user, wrong password
+BlackBoxLogin.test_tasks_page_requires_login  PASS    
+    Security: /tasks without login redirects to /login
+IntegrationFlow.test_full_user_journey        PASS    
+    Register -> Login -> Add -> Complete -> Delete -> Logout
+IntegrationFlow.test_invalid_task_index_ignored PASS    
+    Robustness: deleting a task that does not exist does not crash
+----------------------------------------------------------------------
+Total: 19   Passed: 19   Failed: 0   Pass rate: 100.0%
+Verdict: ACCEPTED

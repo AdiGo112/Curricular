@@ -1,0 +1,53 @@
+{
+  "id": "6f1d2c1e-0001-4a00-9000-000000000001",
+  "version": "2.0",
+  "name": "TaskTrack",
+  "url": "http://127.0.0.1:5000",
+  "tests": [
+    {
+      "id": "6f1d2c1e-0002-4a00-9000-000000000002",
+      "name": "Register login add task logout",
+      "commands": [
+        { "id": "c01", "comment": "", "command": "open", "target": "/register", "targets": [], "value": "" },
+        { "id": "c02", "comment": "", "command": "type", "target": "id=username", "targets": [], "value": "ideuser" },
+        { "id": "c03", "comment": "", "command": "type", "target": "id=password", "targets": [], "value": "pass12" },
+        { "id": "c04", "comment": "", "command": "type", "target": "id=confirm", "targets": [], "value": "pass12" },
+        { "id": "c05", "comment": "", "command": "click", "target": "id=submit", "targets": [], "value": "" },
+        { "id": "c06", "comment": "", "command": "assertText", "target": "id=msg", "targets": [], "value": "Registration successful, please login" },
+        { "id": "c07", "comment": "", "command": "open", "target": "/login", "targets": [], "value": "" },
+        { "id": "c08", "comment": "", "command": "type", "target": "id=username", "targets": [], "value": "ideuser" },
+        { "id": "c09", "comment": "", "command": "type", "target": "id=password", "targets": [], "value": "pass12" },
+        { "id": "c10", "comment": "", "command": "click", "target": "id=submit", "targets": [], "value": "" },
+        { "id": "c11", "comment": "", "command": "assertText", "target": "id=heading", "targets": [], "value": "My Tasks" },
+        { "id": "c12", "comment": "", "command": "type", "target": "id=task-title", "targets": [], "value": "Task from Selenium IDE" },
+        { "id": "c13", "comment": "", "command": "click", "target": "id=add-task", "targets": [], "value": "" },
+        { "id": "c14", "comment": "", "command": "assertText", "target": "css=#task-list .title", "targets": [], "value": "Task from Selenium IDE" },
+        { "id": "c15", "comment": "", "command": "click", "target": "id=logout", "targets": [], "value": "" },
+        { "id": "c16", "comment": "", "command": "assertText", "target": "id=heading", "targets": [], "value": "Login" }
+      ]
+    },
+    {
+      "id": "6f1d2c1e-0003-4a00-9000-000000000003",
+      "name": "Invalid login shows error",
+      "commands": [
+        { "id": "d01", "comment": "", "command": "open", "target": "/login", "targets": [], "value": "" },
+        { "id": "d02", "comment": "", "command": "type", "target": "id=username", "targets": [], "value": "nobody" },
+        { "id": "d03", "comment": "", "command": "type", "target": "id=password", "targets": [], "value": "wrong12" },
+        { "id": "d04", "comment": "", "command": "click", "target": "id=submit", "targets": [], "value": "" },
+        { "id": "d05", "comment": "", "command": "assertText", "target": "id=error", "targets": [], "value": "Invalid username or password" }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "6f1d2c1e-0004-4a00-9000-000000000004",
+      "name": "Regression",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": ["6f1d2c1e-0002-4a00-9000-000000000002", "6f1d2c1e-0003-4a00-9000-000000000003"]
+    }
+  ],
+  "urls": ["http://127.0.0.1:5000/"],
+  "plugins": []
+}

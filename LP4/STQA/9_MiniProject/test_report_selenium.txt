@@ -1,0 +1,29 @@
+======================================================================
+ TaskTrack - Selenium Regression Test Report
+ Date: 2026-11-03 21:29
+======================================================================
+Test Case                                     Result  
+----------------------------------------------------------------------
+TaskTrackRegression.test_01_login_page_loads  PASS    
+    RT-01: Home page redirects to Login page
+TaskTrackRegression.test_02_register_success  PASS    
+    RT-02: Valid registration shows success message
+TaskTrackRegression.test_03_register_weak_password PASS    
+    RT-03: Password without digit is rejected
+TaskTrackRegression.test_04_login_invalid     PASS    
+    RT-04: Wrong credentials show error
+TaskTrackRegression.test_05_login_valid       PASS    
+    RT-05: Valid login opens My Tasks page
+TaskTrackRegression.test_06_add_task          PASS    
+    RT-06: Added task appears in the list
+TaskTrackRegression.test_07_blank_task_rejected PASS    
+    RT-07: Blank task title shows error
+TaskTrackRegression.test_08_complete_task     PASS    
+    RT-08: Done link marks task completed
+TaskTrackRegression.test_09_delete_task       PASS    
+    RT-09: Delete link removes the task
+TaskTrackRegression.test_10_logout            PASS    
+    RT-10: Logout blocks access to tasks page
+----------------------------------------------------------------------
+Total: 10   Passed: 10   Failed: 0   Pass rate: 100.0%
+Verdict: ACCEPTED
