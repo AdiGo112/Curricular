@@ -1,29 +1,84 @@
-======================================================================
- TaskTrack - Selenium Regression Test Report
- Date: 2026-11-03 22:26
-======================================================================
-Test Case                                     Result  
-----------------------------------------------------------------------
-TaskTrackRegression.test_01_login_page_loads  PASS    
-    RT-01: Home page redirects to Login page
-TaskTrackRegression.test_02_register_success  PASS    
-    RT-02: Valid registration shows success message
-TaskTrackRegression.test_03_register_weak_password PASS    
-    RT-03: Password without digit is rejected
-TaskTrackRegression.test_04_login_invalid     PASS    
-    RT-04: Wrong credentials show error
-TaskTrackRegression.test_05_login_valid       PASS    
-    RT-05: Valid login opens My Tasks page
-TaskTrackRegression.test_06_add_task          PASS    
-    RT-06: Added task appears in the list
-TaskTrackRegression.test_07_blank_task_rejected PASS    
-    RT-07: Blank task title shows error
-TaskTrackRegression.test_08_complete_task     PASS    
-    RT-08: Done link marks task completed
-TaskTrackRegression.test_09_delete_task       PASS    
-    RT-09: Delete link removes the task
-TaskTrackRegression.test_10_logout            PASS    
-    RT-10: Logout blocks access to tasks page
-----------------------------------------------------------------------
-Total: 10   Passed: 10   Failed: 0   Pass rate: 100.0%
-Verdict: ACCEPTED
+================================================
+TaskTrack v1.1 - Selenium Regression Test Report
+================================================
+
++-------------------+-------+--------------------+---------+---------------------+
+| Application       | Build | Tool               | Browser | Date                |
++===================+=======+====================+=========+=====================+
+| TaskTrack (Flask) | v1.1  | Selenium WebDriver | Chrome  | 2026-11-04 13:27:16 |
++-------------------+-------+--------------------+---------+---------------------+
+
+1. Summary
+----------
++-------+--------+--------+-----------+--------------+-----------------------------+
+| Total | Passed | Failed | Pass rate | Duration (s) | Verdict                     |
++=======+========+========+===========+==============+=============================+
+| 12    | 12     | 0      | 100.0%    | 10.95        | ACCEPTED                    |
++-------+--------+--------+-----------+--------------+-----------------------------+
+
+2. Test Results
+---------------
++-------+------------------------------------------+------------------+----------+----------+--------+
+| ID    | Test case                                | Bug type if it   | Severity | Time (s) | Result |
+|       |                                          | fails            |          |          |        |
++=======+==========================================+==================+==========+==========+========+
+| RT-01 | Home page redirects to Login page        | Functional       | Major    | 0.11     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-02 | Valid registration shows success message | Functional       | Critical | 0.26     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-03 | Password without digit is rejected       | Validation/Input | Major    | 0.26     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-04 | Wrong credentials show error             | Security         | Critical | 0.19     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-05 | Valid login opens My Tasks page          | UI/Cosmetic      | Trivial  | 0.51     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-06 | Added task appears in the list           | Functional       | Major    | 0.57     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-07 | Blank task title shows error             | Validation/Input | Minor    | 0.52     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-08 | Done link marks task completed           | Functional       | Major    | 0.70     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-09 | Delete link removes the task             | Functional       | Major    | 0.71     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-10 | Logout blocks access to tasks page       | Session/State    | Critical | 0.62     | PASS   |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-11 | Invalid task index in the URL does not   | Crash/Exception  | Critical | 0.57     | PASS   |
+|       | crash                                    |                  |          |          |        |
++-------+------------------------------------------+------------------+----------+----------+--------+
+| RT-12 | HTML in a task title is shown as text,   | Security         | Critical | 1.06     | PASS   |
+|       | not run                                  |                  |          |          |        |
++-------+------------------------------------------+------------------+----------+----------+--------+
+
+3. Bugs Identified
+------------------
+None. Every test passed.
+
+4. Exploratory Testing (manual)
+-------------------------------
+Charter: explore Register, Tasks and Logout for 20 minutes with unusual input and navigation.
+Result : 7 tests tried, 6 passed, 1 found a bug.
+
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ID    | Area     | What was tried               | What was observed                | Result | Bug    |
++=======+==========+==============================+==================================+========+========+
+| ET-01 | Register | Username with spaces (adi    | Rejected with a clear message    | Pass   | -      |
+|       |          | go)                          |                                  |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ET-02 | Register | Same username in different   | Rejected as already exists       | Pass   | -      |
+|       |          | case (tester / TESTER)       |                                  |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ET-03 | Tasks    | Task title of exactly 50 and | 50 accepted; 51 rejected         | Pass   | -      |
+|       |          | 51 characters                |                                  |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ET-04 | Tasks    | Task title <b>hi</b>         | Shown as plain text (escaped; no | Pass   | -      |
+|       |          |                              | XSS)                             |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ET-05 | Tasks    | Edited URL to                | Ignored; task list shown         | Pass   | -      |
+|       |          | /tasks/99/delete             |                                  |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ET-06 | Logout   | Back button after logout     | Cached page shows but every      | Pass   | -      |
+|       |          |                              | action redirects to Login        |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+
+| ET-07 | Tasks    | Done/Delete are plain GET    | A link prefetch or crawler could | Fail   | BUG-08 |
+|       |          | links                        | change data                      |        |        |
++-------+----------+------------------------------+----------------------------------+--------+--------+

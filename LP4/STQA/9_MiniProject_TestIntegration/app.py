@@ -7,17 +7,24 @@
 #             Delete task, Logout
 # Storage   : In-memory dictionaries (data resets on restart)
 #
+# Two builds of the same app, for regression testing:
+#   v1.0  first release, has 6 planted bugs (BUG-01..06)
+#   v1.1  fixed release (default)
+# Every bug is marked "BUG-0x (v1.0)" in the code below.
+#
 # =========================================================
 # HOW TO RUN
 # =========================================================
 #
 #   pip install flask
-#   python app.py
+#   python app.py          (v1.1, fixed)
+#   python app.py 1.0      (v1.0, buggy)
 #   open http://127.0.0.1:5000
 #
 # =========================================================
 
 import re
+import sys
 
 from flask import Flask, redirect, render_template_string, request, session, url_for
 
@@ -26,6 +33,12 @@ app.secret_key = "stqa-mini-project"   # ponytail: fixed key, fine for a lab app
 
 users = {}   # username -> password
 tasks = {}   # username -> list of {"title": str, "done": bool}
+
+VERSION = "1.1"   # build under test: "1.0" (buggy) or "1.1" (fixed)
+
+
+def buggy():
+    return VERSION == "1.0"
 
 
 # =========================================================
@@ -41,7 +54,7 @@ def validate_username(username):
 def validate_password(password):
     if len(password) < 6:
         return "Password must be at least 6 characters"
-    if not re.search(r"\d", password):
+    if not re.search(r"\d", password) and not buggy():   # BUG-01 (v1.0): digit rule skipped
         return "Password must contain a digit"
     return ""
 
@@ -93,7 +106,8 @@ PAGE = """
 <ul id="task-list">
 {% for t in items %}
   <li class="task {{ 'done' if t.done }}">
-    <span class="title">{{ t.title }}</span>
+    {# BUG-06 (v1.0): |safe renders the title as HTML (XSS) #}
+    <span class="title">{% if version == "1.0" %}{{ t.title|safe }}{% else %}{{ t.title }}{% endif %}</span>
     {% if not t.done %}<a class="complete" href="/tasks/{{ loop.index0 }}/done">Done</a>{% endif %}
     <a class="delete" href="/tasks/{{ loop.index0 }}/delete">Delete</a>
   </li>
@@ -101,11 +115,16 @@ PAGE = """
 </ul>
 <p id="count">{{ items|length }} task(s)</p>
 {% endif %}
+<p id="version" style="color:gray;font-size:small">TaskTrack v{{ version }}</p>
 """
 
 
 def page(**kw):
-    return render_template_string(PAGE, **{"error": "", "msg": "", **kw})
+    return render_template_string(PAGE, **{"error": "", "msg": "", "version": VERSION, **kw})
+
+
+def tasks_heading():
+    return "My Task" if buggy() else "My Tasks"   # BUG-02 (v1.0): typo in heading
 
 
 # =========================================================
@@ -158,7 +177,8 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
+    if not buggy():   # BUG-04 (v1.0): logout does not end the session
+        session.pop("user", None)
     return redirect(url_for("login"))
 
 
@@ -167,7 +187,7 @@ def tasks_page():
     if "user" not in session:
         return redirect(url_for("login"))
     user = session["user"]
-    return page(page="tasks", heading="My Tasks", user=user, items=tasks[user])
+    return page(page="tasks", heading=tasks_heading(), user=user, items=tasks[user])
 
 
 @app.route("/tasks/add", methods=["POST"])
@@ -179,7 +199,7 @@ def add_task():
 
     error = validate_task(title)
     if error:
-        return page(page="tasks", heading="My Tasks", user=user, items=tasks[user], error=error)
+        return page(page="tasks", heading=tasks_heading(), user=user, items=tasks[user], error=error)
 
     tasks[user].append({"title": title.strip(), "done": False})
     return redirect(url_for("tasks_page"))
@@ -190,8 +210,8 @@ def change_task(i, action):
     if "user" not in session:
         return redirect(url_for("login"))
     items = tasks[session["user"]]
-    if 0 <= i < len(items):
-        if action == "done":
+    if 0 <= i < len(items) or buggy():   # BUG-05 (v1.0): no range check -> IndexError, HTTP 500
+        if action == "done" and not buggy():   # BUG-03 (v1.0): Done does nothing
             items[i]["done"] = True
         elif action == "delete":
             items.pop(i)
@@ -199,4 +219,8 @@ def change_task(i, action):
 
 
 if __name__ == "__main__":
+    VERSION = sys.argv[1] if len(sys.argv) > 1 else "1.1"
+    if VERSION not in ("1.0", "1.1"):
+        sys.exit("usage: python app.py [1.0|1.1]")
+    print(f"TaskTrack v{VERSION}")
     app.run(debug=True)

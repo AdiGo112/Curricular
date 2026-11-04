@@ -6,48 +6,398 @@
   "tests": [
     {
       "id": "6f1d2c1e-0002-4a00-9000-000000000002",
-      "name": "Register login add task logout",
+      "name": "IDE-1 Register, login, add task, logout",
       "commands": [
-        { "id": "c01", "comment": "", "command": "open", "target": "/register", "targets": [], "value": "" },
-        { "id": "c02", "comment": "", "command": "type", "target": "id=username", "targets": [], "value": "ideuser" },
-        { "id": "c03", "comment": "", "command": "type", "target": "id=password", "targets": [], "value": "pass12" },
-        { "id": "c04", "comment": "", "command": "type", "target": "id=confirm", "targets": [], "value": "pass12" },
-        { "id": "c05", "comment": "", "command": "click", "target": "id=submit", "targets": [], "value": "" },
-        { "id": "c06", "comment": "", "command": "assertText", "target": "id=msg", "targets": [], "value": "Registration successful, please login" },
-        { "id": "c07", "comment": "", "command": "open", "target": "/login", "targets": [], "value": "" },
-        { "id": "c08", "comment": "", "command": "type", "target": "id=username", "targets": [], "value": "ideuser" },
-        { "id": "c09", "comment": "", "command": "type", "target": "id=password", "targets": [], "value": "pass12" },
-        { "id": "c10", "comment": "", "command": "click", "target": "id=submit", "targets": [], "value": "" },
-        { "id": "c11", "comment": "", "command": "assertText", "target": "id=heading", "targets": [], "value": "My Tasks" },
-        { "id": "c12", "comment": "", "command": "type", "target": "id=task-title", "targets": [], "value": "Task from Selenium IDE" },
-        { "id": "c13", "comment": "", "command": "click", "target": "id=add-task", "targets": [], "value": "" },
-        { "id": "c14", "comment": "", "command": "assertText", "target": "css=#task-list .title", "targets": [], "value": "Task from Selenium IDE" },
-        { "id": "c15", "comment": "", "command": "click", "target": "id=logout", "targets": [], "value": "" },
-        { "id": "c16", "comment": "", "command": "assertText", "target": "id=heading", "targets": [], "value": "Login" }
+        {
+          "id": "t2c01",
+          "comment": "",
+          "command": "open",
+          "target": "/register",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c02",
+          "comment": "",
+          "command": "type",
+          "target": "id=username",
+          "targets": [],
+          "value": "ideuser"
+        },
+        {
+          "id": "t2c03",
+          "comment": "",
+          "command": "type",
+          "target": "id=password",
+          "targets": [],
+          "value": "pass12"
+        },
+        {
+          "id": "t2c04",
+          "comment": "",
+          "command": "type",
+          "target": "id=confirm",
+          "targets": [],
+          "value": "pass12"
+        },
+        {
+          "id": "t2c05",
+          "comment": "",
+          "command": "click",
+          "target": "id=submit",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c06",
+          "comment": "",
+          "command": "assertText",
+          "target": "id=msg",
+          "targets": [],
+          "value": "Registration successful, please login"
+        },
+        {
+          "id": "t2c07",
+          "comment": "",
+          "command": "open",
+          "target": "/login",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c08",
+          "comment": "",
+          "command": "type",
+          "target": "id=username",
+          "targets": [],
+          "value": "ideuser"
+        },
+        {
+          "id": "t2c09",
+          "comment": "",
+          "command": "type",
+          "target": "id=password",
+          "targets": [],
+          "value": "pass12"
+        },
+        {
+          "id": "t2c10",
+          "comment": "",
+          "command": "click",
+          "target": "id=submit",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c11",
+          "comment": "",
+          "command": "verifyText",
+          "target": "id=heading",
+          "targets": [],
+          "value": "My Tasks"
+        },
+        {
+          "id": "t2c12",
+          "comment": "",
+          "command": "type",
+          "target": "id=task-title",
+          "targets": [],
+          "value": "Task from Selenium IDE"
+        },
+        {
+          "id": "t2c13",
+          "comment": "",
+          "command": "click",
+          "target": "id=add-task",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c14",
+          "comment": "",
+          "command": "assertText",
+          "target": "css=#task-list .title",
+          "targets": [],
+          "value": "Task from Selenium IDE"
+        },
+        {
+          "id": "t2c15",
+          "comment": "",
+          "command": "click",
+          "target": "id=logout",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c16",
+          "comment": "",
+          "command": "open",
+          "target": "/tasks",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t2c17",
+          "comment": "",
+          "command": "assertText",
+          "target": "id=heading",
+          "targets": [],
+          "value": "Login"
+        }
       ]
     },
     {
       "id": "6f1d2c1e-0003-4a00-9000-000000000003",
-      "name": "Invalid login shows error",
+      "name": "IDE-2 Invalid login shows error",
       "commands": [
-        { "id": "d01", "comment": "", "command": "open", "target": "/login", "targets": [], "value": "" },
-        { "id": "d02", "comment": "", "command": "type", "target": "id=username", "targets": [], "value": "nobody" },
-        { "id": "d03", "comment": "", "command": "type", "target": "id=password", "targets": [], "value": "wrong12" },
-        { "id": "d04", "comment": "", "command": "click", "target": "id=submit", "targets": [], "value": "" },
-        { "id": "d05", "comment": "", "command": "assertText", "target": "id=error", "targets": [], "value": "Invalid username or password" }
+        {
+          "id": "t3c01",
+          "comment": "",
+          "command": "open",
+          "target": "/login",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t3c02",
+          "comment": "",
+          "command": "type",
+          "target": "id=username",
+          "targets": [],
+          "value": "nobody"
+        },
+        {
+          "id": "t3c03",
+          "comment": "",
+          "command": "type",
+          "target": "id=password",
+          "targets": [],
+          "value": "wrong12"
+        },
+        {
+          "id": "t3c04",
+          "comment": "",
+          "command": "click",
+          "target": "id=submit",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t3c05",
+          "comment": "",
+          "command": "assertText",
+          "target": "id=error",
+          "targets": [],
+          "value": "Invalid username or password"
+        }
+      ]
+    },
+    {
+      "id": "6f1d2c1e-0004-4a00-9000-000000000004",
+      "name": "IDE-3 Password without digit rejected",
+      "commands": [
+        {
+          "id": "t4c01",
+          "comment": "",
+          "command": "open",
+          "target": "/register",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t4c02",
+          "comment": "",
+          "command": "type",
+          "target": "id=username",
+          "targets": [],
+          "value": "ideweak"
+        },
+        {
+          "id": "t4c03",
+          "comment": "",
+          "command": "type",
+          "target": "id=password",
+          "targets": [],
+          "value": "abcdefg"
+        },
+        {
+          "id": "t4c04",
+          "comment": "",
+          "command": "type",
+          "target": "id=confirm",
+          "targets": [],
+          "value": "abcdefg"
+        },
+        {
+          "id": "t4c05",
+          "comment": "",
+          "command": "click",
+          "target": "id=submit",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t4c06",
+          "comment": "",
+          "command": "assertElementPresent",
+          "target": "id=error",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "6f1d2c1e-0005-4a00-9000-000000000005",
+      "name": "IDE-4 Done, HTML title, invalid index",
+      "commands": [
+        {
+          "id": "t5c01",
+          "comment": "",
+          "command": "open",
+          "target": "/register",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c02",
+          "comment": "",
+          "command": "type",
+          "target": "id=username",
+          "targets": [],
+          "value": "idetasks"
+        },
+        {
+          "id": "t5c03",
+          "comment": "",
+          "command": "type",
+          "target": "id=password",
+          "targets": [],
+          "value": "pass12"
+        },
+        {
+          "id": "t5c04",
+          "comment": "",
+          "command": "type",
+          "target": "id=confirm",
+          "targets": [],
+          "value": "pass12"
+        },
+        {
+          "id": "t5c05",
+          "comment": "",
+          "command": "click",
+          "target": "id=submit",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c06",
+          "comment": "",
+          "command": "open",
+          "target": "/login",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c07",
+          "comment": "",
+          "command": "type",
+          "target": "id=username",
+          "targets": [],
+          "value": "idetasks"
+        },
+        {
+          "id": "t5c08",
+          "comment": "",
+          "command": "type",
+          "target": "id=password",
+          "targets": [],
+          "value": "pass12"
+        },
+        {
+          "id": "t5c09",
+          "comment": "",
+          "command": "click",
+          "target": "id=submit",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c10",
+          "comment": "",
+          "command": "type",
+          "target": "id=task-title",
+          "targets": [],
+          "value": "<b>hi</b>"
+        },
+        {
+          "id": "t5c11",
+          "comment": "",
+          "command": "click",
+          "target": "id=add-task",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c12",
+          "comment": "",
+          "command": "verifyText",
+          "target": "css=#task-list .title",
+          "targets": [],
+          "value": "<b>hi</b>"
+        },
+        {
+          "id": "t5c13",
+          "comment": "",
+          "command": "click",
+          "target": "css=.complete",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c14",
+          "comment": "",
+          "command": "verifyElementPresent",
+          "target": "css=#task-list li.done",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c15",
+          "comment": "",
+          "command": "open",
+          "target": "/tasks/99/delete",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "t5c16",
+          "comment": "",
+          "command": "assertElementPresent",
+          "target": "id=count",
+          "targets": [],
+          "value": ""
+        }
       ]
     }
   ],
   "suites": [
     {
-      "id": "6f1d2c1e-0004-4a00-9000-000000000004",
+      "id": "6f1d2c1e-0009-4a00-9000-000000000009",
       "name": "Regression",
       "persistSession": false,
       "parallel": false,
       "timeout": 300,
-      "tests": ["6f1d2c1e-0002-4a00-9000-000000000002", "6f1d2c1e-0003-4a00-9000-000000000003"]
+      "tests": [
+        "6f1d2c1e-0002-4a00-9000-000000000002",
+        "6f1d2c1e-0003-4a00-9000-000000000003",
+        "6f1d2c1e-0004-4a00-9000-000000000004",
+        "6f1d2c1e-0005-4a00-9000-000000000005"
+      ]
     }
   ],
-  "urls": ["http://127.0.0.1:5000/"],
+  "urls": [
+    "http://127.0.0.1:5000/"
+  ],
   "plugins": []
 }

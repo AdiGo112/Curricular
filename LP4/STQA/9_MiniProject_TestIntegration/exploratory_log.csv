@@ -1,0 +1,13 @@
+version,id,area,tried,observed,result,bug
+1.0,ET-01,Tasks,Task title <b>hi</b>,Shown in bold: HTML is injected into the page (XSS),Fail,BUG-06
+1.0,ET-02,Tasks,Edited URL to /tasks/99/delete,Internal Server Error (HTTP 500),Fail,BUG-05
+1.0,ET-03,Logout,Logout then typed /tasks in the address bar,Task list still opens: session not ended,Fail,BUG-04
+1.0,ET-04,Tasks,Clicked Done on a task,Nothing changes: task not struck through,Fail,BUG-03
+1.0,ET-05,Register,Username with spaces (adi go),Rejected with a clear message,Pass,
+1.1,ET-01,Register,Username with spaces (adi go),Rejected with a clear message,Pass,
+1.1,ET-02,Register,Same username in different case (tester / TESTER),Rejected as already exists,Pass,
+1.1,ET-03,Tasks,Task title of exactly 50 and 51 characters,50 accepted; 51 rejected,Pass,
+1.1,ET-04,Tasks,Task title <b>hi</b>,Shown as plain text (escaped; no XSS),Pass,
+1.1,ET-05,Tasks,Edited URL to /tasks/99/delete,Ignored; task list shown,Pass,
+1.1,ET-06,Logout,Back button after logout,Cached page shows but every action redirects to Login,Pass,
+1.1,ET-07,Tasks,Done/Delete are plain GET links,A link prefetch or crawler could change data,Fail,BUG-08

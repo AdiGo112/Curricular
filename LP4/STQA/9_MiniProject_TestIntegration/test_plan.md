@@ -1,155 +1,156 @@
-# Mini Project: TaskTrack Test Plan and Test Report
+# Mini Project 9: TaskTrack Test Plan and Test Report
 
-## 1. System Environment
+> **PS:** Create a small web-based application by selecting relevant system environment / platform and programming languages. Narrate a concise test plan consisting of features to be tested and a bug taxonomy. Narrate scripts to perform regression tests. Identify the bugs using Selenium WebDriver and IDE and generate test reports encompassing exploratory testing.
+
+| PS requirement | Where |
+| --- | --- |
+| Small web application + environment | `app.py`, section 1 |
+| Concise test plan: features to be tested | section 2 |
+| Bug taxonomy | section 3 |
+| Regression test scripts | `test_selenium_regression.py` (WebDriver), `TaskTrack.side` (IDE), section 4 |
+| Bugs identified with WebDriver and IDE | section 5 |
+| Test reports with exploratory testing | `test_report_selenium.txt` (accepted build v1.1), `exploratory_log.csv`, sections 6–7 |
+
+## 1. Application and Environment
+
+**TaskTrack** is a small to-do web app: register, log in, add tasks, mark them done, delete them, and log out.
 
 | Item | Selection |
 | --- | --- |
-| Application | TaskTrack, a small web-based to-do list app |
-| Language | Python 3 |
-| Framework | Flask (web server and HTML templates) |
-| Storage | In-memory Python dictionaries |
+| Language / framework | Python 3, Flask (HTML templates) |
+| Storage | In-memory dictionaries (reset on restart) |
 | Browsers | Google Chrome, Microsoft Edge |
-| Automation tools | Selenium WebDriver (Python), Selenium IDE (browser extension) |
-| Unit test tool | `unittest` (Python built-in) |
-| OS | Windows 11 (works on Linux/macOS also) |
+| Test tools | Selenium WebDriver (Python), Selenium IDE (browser extension) |
+| OS | Windows 11 (also runs on Linux and macOS) |
+
+There are two builds of the same code, so that regression testing has something to find:
+
+| Build | Run | Meaning |
+| --- | --- | --- |
+| **v1.0** | `python app.py 1.0` | First release with 6 bugs (marked `BUG-0x (v1.0)` in `app.py`) |
+| **v1.1** | `python app.py` | Fixed release |
+
+The page footer shows the build under test (`TaskTrack v1.0` or `v1.1`).
 
 ## 2. Test Plan
 
-### 2.1 Objective
-Verify that a user can register, log in, manage tasks and log out correctly, and that invalid input is rejected with a clear message.
+**Objective:** confirm that every feature works in a real browser, find bugs in v1.0, and confirm that v1.1 fixes them without breaking anything else.
 
-### 2.2 Scope: Features to be Tested
+### Features to be tested
 
-| ID | Feature | Description |
-| --- | --- | --- |
-| F1 | Registration | Username 3–15 chars (letters, digits, `_`), password ≥ 6 chars with a digit, confirm password, unique username |
-| F2 | Login | Valid credentials open the task page, invalid ones show an error |
-| F3 | Add task | Title 1–50 characters, blank titles rejected |
-| F4 | Complete task | "Done" link strikes through the task |
-| F5 | Delete task | "Delete" link removes the task |
-| F6 | Logout / session | Logout ends the session, `/tasks` is protected |
+| ID | Feature | Rule | Scripts |
+| --- | --- | --- | --- |
+| F1 | Registration | Username 3–15 letters, digits or `_`; password ≥ 6 chars with a digit; passwords match | RT-02, RT-03, IDE-1, IDE-3 |
+| F2 | Login | Valid login opens "My Tasks"; wrong login shows an error | RT-01, RT-04, RT-05, IDE-1, IDE-2 |
+| F3 | Add task | Title 1–50 chars; blank rejected; HTML shown as text | RT-06, RT-07, RT-12, IDE-1, IDE-4 |
+| F4 | Complete task | "Done" strikes the task through | RT-08, IDE-4 |
+| F5 | Delete task | "Delete" removes the task; a bad index does not crash | RT-09, RT-11, IDE-4 |
+| F6 | Logout / session | Logout ends the session; `/tasks` needs a login | RT-10, IDE-1 |
 
-### 2.3 Features Not Tested
-Persistent storage, password reset, performance and load testing (outside lab scope).
+**Not tested:** persistent storage, password reset, performance and load.
 
-### 2.4 Approach
+**Approach:** automated regression with Selenium WebDriver (12 scripts) and Selenium IDE (4 recorded tests), both run on v1.0 and on v1.1. This is followed by a 20-minute manual exploratory session on each build.
 
-| Level | Technique | File |
-| --- | --- | --- |
-| Unit (white-box) | Branch coverage of `validate_username`, `validate_password`, `validate_task` | `test_unit_integration.py` |
-| Unit (black-box) | Equivalence partitioning and boundary value analysis through HTTP | `test_unit_integration.py` |
-| Integration | Full flow: register → login → add → done → delete → logout | `test_unit_integration.py` |
-| System / Regression | Selenium WebDriver in a real browser | `test_selenium_regression.py` |
-| Record & playback | Selenium IDE project | `TaskTrack.side` |
-| Exploratory | Time-boxed manual session (section 5) | — |
+**Entry criteria:** the app starts and the login page loads. **Exit criteria:** every script has run and no Critical or Major bug is open.
 
-### 2.5 Entry and Exit Criteria
-- **Entry:** the app starts without errors and all pages load.
-- **Exit:** every planned test has run and there are no open Critical or Major bugs.
-
-### 2.6 Pass/Fail and Acceptance Criteria
-- A test **passes** when the actual result equals the expected result.
-- Pass rate 100% → **ACCEPTED**
-- Pass rate ≥ 90%, and only Minor/Trivial bugs open → **ACCEPTED WITH MINOR DEFECTS**
-- Otherwise → **REJECTED**
-
-### 2.7 Deliverables
-Test plan (this file), test scripts, generated test reports (`test_report_unit.txt`, `test_report_selenium.txt`), bug list.
+**Pass/fail and acceptance:** a script passes when the actual result equals the expected result. A 100% pass rate is **ACCEPTED**. A rate of at least 90% is **ACCEPTED WITH MINOR DEFECTS**. Anything lower is **REJECTED**.
 
 ## 3. Bug Taxonomy
 
-Each bug is classified by **type** and by **severity**.
-
-| Type | Meaning | Example in this app |
+| Type | Meaning | Example in TaskTrack |
 | --- | --- | --- |
-| Functional | Feature does not do what is required | Task not added to list |
-| Validation / Input | Wrong input accepted or right input rejected | Blank task title accepted |
-| UI / Cosmetic | Layout, text or style issue | Error message not shown in red |
-| Security | Unauthorised access possible | `/tasks` opens without login |
-| Session / State | Wrong behaviour across requests | User still logged in after logout |
-| Crash / Exception | Server error (HTTP 500) | Error page on invalid task index |
-| Automation / Test | Defect in the test script, not the app | Stale element in Selenium script |
+| Functional | A feature does not do what is required | "Done" does nothing |
+| Validation / Input | Wrong input is accepted or right input is rejected | Password without a digit accepted |
+| UI / Cosmetic | Wrong text, layout or style | Heading reads "My Task" |
+| Security | Data or pages exposed, or code injection possible | HTML in a task title runs (XSS) |
+| Session / State | Wrong behaviour across requests | Still logged in after logout |
+| Crash / Exception | Server error (HTTP 500) | Invalid task index crashes |
+| Automation / Test | Defect in the test script, not the app | Stale element in a Selenium script |
 
 | Severity | Meaning |
 | --- | --- |
-| Critical | App crashes or data is lost; no workaround |
-| Major | Main feature broken; workaround is hard |
-| Minor | Feature works but with a small defect |
-| Trivial | Cosmetic issue |
+| Critical | Crash, data loss or security hole; no workaround |
+| Major | A main feature is broken |
+| Minor | Small defect; a workaround exists |
+| Trivial | Cosmetic only |
 
-## 4. Test Cases with Test Procedures
+## 4. Regression Test Scripts
 
-| TC ID | Scenario | Test Procedure (Steps) | Test Data | Expected Result | Type |
-| --- | --- | --- | --- | --- | --- |
-| TC01 | Open app | 1. Open `http://127.0.0.1:5000` | — | Redirects to Login page | Black-box |
-| TC02 | Valid registration | 1. Open Register 2. Enter data 3. Click Register | `abc` / `pass12` / `pass12` | "Registration successful" | BVA (min) |
-| TC03 | Username max length | Same as TC02 | 15 × `a` | Registration successful | BVA (max) |
-| TC04 | Username too long | Same as TC02 | 16 × `a` | Error "3-15 letters…" | BVA (max+1) |
-| TC05 | Password without digit | Same as TC02 | `abcdefg` | Error "must contain a digit" | EP |
-| TC06 | Password mismatch | Same as TC02 | `pass12` / `other12` | Error "Passwords do not match" | EP |
-| TC07 | Duplicate username | Register `tester`, then `TESTER` | — | Error "Username already exists" | EP |
-| TC08 | Empty login | 1. Open Login 2. Click Login | blank | Error "Enter username and password" | EP |
-| TC09 | Wrong password | Login with a registered user | `tester` / `wrong12` | Error "Invalid username or password" | EP |
-| TC10 | Valid login | Login with a registered user | `tester` / `pass12` | "My Tasks" page with username | Black-box |
-| TC11 | Add task | Type a title, click Add | `Write SRS` | Task listed, count = 1 | Black-box |
-| TC12 | Blank task | Type spaces, click Add | `"   "` | Error "cannot be empty" | Black-box |
-| TC13 | Complete task | Click Done | — | Task struck through | Black-box |
-| TC14 | Delete task | Click Delete | — | Task removed, count = 0 | Black-box |
-| TC15 | Invalid task index | Open `/tasks/99/delete` | — | No crash, redirect to tasks | Robustness |
-| TC16 | Protected page | Open `/tasks` without login | — | Redirect to Login | Security |
-| TC17 | Logout | Click Logout, then open `/tasks` | — | Login page shown | Security |
+Regression testing runs the same scripts again after every change, to confirm that the fixes work and that nothing which worked before is now broken.
 
-## 5. Regression Scripts
+### 4.1 Selenium WebDriver: `test_selenium_regression.py`
 
-Regression testing re-runs the same tests after every code change to confirm nothing that worked before is now broken.
+The script starts the app by itself on port 5001, opens Chrome (or Edge), and runs:
 
-1. **Selenium WebDriver** (`test_selenium_regression.py`, 10 scripts RT-01 to RT-10)
-   - The script starts the app on port 5001, opens Chrome, and repeats the flows in section 4.
-   - Run it after every change with `python test_selenium_regression.py`. It writes `test_report_selenium.txt`.
-2. **Selenium IDE** (`TaskTrack.side`)
-   - Install the Selenium IDE extension in Chrome or Edge, then choose **Open an existing project** → `TaskTrack.side`.
-   - Start `python app.py`, then click **Run all tests** in the *Regression* suite.
-   - The users are stored in memory, so restart `app.py` before running it again. Otherwise "ideuser" already exists.
-
-## 6. Bugs Identified
-
-These bugs were found while building and testing this project.
-
-| Bug ID | Found by | Description | Type | Severity | Status |
-| --- | --- | --- | --- | --- | --- |
-| BUG-01 | Unit/Integration tests | Every error message crashed the server with `TypeError: got multiple values for keyword argument 'error'` (HTTP 500) | Crash / Exception | Critical | Fixed: merged the defaults in `page()` |
-| BUG-02 | Selenium regression | Logging in right after registering failed with `StaleElementReferenceException`, because the script typed into the old page before it reloaded | Automation / Test | Major | Fixed: open `/login` before typing |
-| BUG-03 | Exploratory | "Done" and "Delete" use GET links, so a page prefetch could change data | Security | Minor | Open: accepted for the lab version |
-
-## 7. Exploratory Testing
-
-**Charter:** explore the Register and Task pages for 20 minutes, trying unusual input, to find validation and session problems.
-
-| # | What was tried | Observation | Result |
+| Script | Steps | Expected result | Bug type if it fails |
 | --- | --- | --- | --- |
-| 1 | Username with spaces `adi go` | Rejected with a clear message | Pass |
-| 2 | Same username in different case | Rejected as "already exists" | Pass |
-| 3 | Task title of exactly 50 and 51 characters | 50 accepted, 51 rejected | Pass |
-| 4 | Task with HTML `<b>hi</b>` | Shown as plain text (Jinja escapes it, so no XSS) | Pass |
-| 5 | Browser Back button after logout | The cached page shows, but every action redirects to Login | Pass |
-| 6 | Edited URL `/tasks/-1/delete` | 404, no data changed | Pass |
-| 7 | Opened `/tasks/0/done` in a second tab | Works on the same session | Pass |
+| RT-01 | Open `/` | Login page | Functional, Major |
+| RT-02 | Register `seluser` / `pass12` / `pass12` | "Registration successful" | Functional, Critical |
+| RT-03 | Register with password `abcdefg` | Error "must contain a digit" | Validation/Input, Major |
+| RT-04 | Login `nobody` / `wrong12` | Error "Invalid username or password" | Security, Critical |
+| RT-05 | Register and log in | Heading "My Tasks", username shown | UI/Cosmetic, Trivial |
+| RT-06 | Add task "Prepare test plan" | Task listed, "1 task(s)" | Functional, Major |
+| RT-07 | Add task "   " | Error "cannot be empty" | Validation/Input, Minor |
+| RT-08 | Add a task, click Done | Task has class `done` (struck through) | Functional, Major |
+| RT-09 | Add a task, click Delete | "0 task(s)" | Functional, Major |
+| RT-10 | Logout, then open `/tasks` | Login page | Session/State, Critical |
+| RT-11 | Open `/tasks/99/delete` | No HTTP 500; task list shown | Crash/Exception, Critical |
+| RT-12 | Add task `<b>hi</b>` | Title shown as the text `<b>hi</b>` | Security, Critical |
 
-## 8. Test Report Summary
+### 4.2 Selenium IDE: `TaskTrack.side` (suite "Regression")
 
-| Suite | Total | Passed | Failed | Pass rate | Verdict |
+| Test | Covers | Key checks |
+| --- | --- | --- |
+| IDE-1 Register, login, add task, logout | F1, F2, F3, F6 | `verifyText heading = My Tasks`, `assertText heading = Login` after logout |
+| IDE-2 Invalid login shows error | F2 | `assertText error` |
+| IDE-3 Password without digit rejected | F1 | `assertElementPresent id=error` |
+| IDE-4 Done, HTML title, invalid index | F3, F4, F5 | `verifyText title = <b>hi</b>`, `verifyElementPresent li.done`, `assertElementPresent id=count` after `/tasks/99/delete` |
+
+`verify…` commands log a failure and continue, so a single run reports every bug. `assert…` commands stop the test.
+
+## 5. Bugs Identified
+
+| Bug ID | Description | Type | Severity | Found by | Status |
 | --- | --- | --- | --- | --- | --- |
-| Unit + Integration (`test_report_unit.txt`) | 19 | 19 | 0 | 100% | ACCEPTED |
-| Selenium regression (`test_report_selenium.txt`) | 10 | 10 | 0 | 100% | ACCEPTED |
-| Exploratory | 7 | 7 | 0 | 100% | ACCEPTED |
+| BUG-01 | Password without a digit is accepted | Validation/Input | Major | WebDriver RT-03, IDE-3 | Fixed in v1.1 |
+| BUG-02 | Task page heading reads "My Task" | UI/Cosmetic | Trivial | WebDriver RT-05, IDE-1 | Fixed in v1.1 |
+| BUG-03 | "Done" link does not mark the task done | Functional | Major | WebDriver RT-08, IDE-4, exploratory ET-04 | Fixed in v1.1 |
+| BUG-04 | Logout does not end the session | Session/State | Critical | WebDriver RT-10, IDE-1, exploratory ET-03 | Fixed in v1.1 |
+| BUG-05 | `/tasks/99/delete` crashes (IndexError, HTTP 500) | Crash/Exception | Critical | WebDriver RT-11, IDE-4, exploratory ET-02 | Fixed in v1.1 |
+| BUG-06 | HTML in a task title is rendered (XSS) | Security | Critical | Exploratory ET-01, then scripted as RT-12 and IDE-4 | Fixed in v1.1 |
+| BUG-07 | Script typed into the old page right after a click (`StaleElementReferenceException`) | Automation/Test | Major | WebDriver, while the scripts were being written | Fixed: `click_and_wait()` waits for the new page |
+| BUG-08 | Done and Delete are GET links, so a prefetch could change data | Security | Minor | Exploratory ET-07 (v1.1) | Open, accepted for the lab |
 
-**Conclusion:** all planned tests pass, and the only open bug (BUG-03) is Minor. **The application is accepted.**
+## 6. Exploratory Testing
+
+**Charter:** explore Register, Tasks and Logout for 20 minutes on each build, using unusual input and navigation (odd characters, HTML, edited URLs, Back button, case changes).
+
+The session notes are kept in `exploratory_log.csv` (version, id, area, what was tried, what was observed, result, bug). The WebDriver script copies the rows for the build under test into its test report. On v1.0, exploration found BUG-06 (XSS), which no script covered at the time, so it was added to the regression suite as RT-12. This is how exploratory testing feeds regression testing.
+
+## 7. Test Report Summary
+
+| Build | Suite | Total | Passed | Failed | Pass rate | Verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| v1.0 | WebDriver (console run) | 12 | 6 | 6 | 50% | REJECTED |
+| v1.0 | Selenium IDE | 4 | 1 | 3 | 25% | REJECTED |
+| v1.0 | Exploratory | 5 | 1 | 4 | — | 4 bugs |
+| v1.1 | WebDriver (`test_report_selenium.txt`) | 12 | 12 | 0 | 100% | ACCEPTED |
+| v1.1 | Selenium IDE | 4 | 4 | 0 | 100% | ACCEPTED |
+| v1.1 | Exploratory | 7 | 6 | 1 | — | 1 Minor bug (BUG-08) |
+
+**Conclusion:** v1.0 is rejected because of 6 bugs (4 Critical). v1.1 fixes all of them, and the same regression scripts show that nothing else broke. Only BUG-08 (Minor) is still open, so **v1.1 is accepted**.
 
 ## How to Run
 
 ```bash
 pip install -r ../requirements.txt
-python app.py                         # use the app at http://127.0.0.1:5000
-python test_unit_integration.py       # white-box, black-box, integration tests
-python test_selenium_regression.py    # browser regression (set HEADLESS=1 to hide the window)
+
+# Selenium WebDriver (starts the app itself; set HEADLESS=1 to hide the browser)
+python test_selenium_regression.py 1.0   # buggy build -> 6 bugs identified, printed to the console
+python test_selenium_regression.py       # fixed build -> test_report_selenium.txt, ACCEPTED
+
+# Selenium IDE
+python app.py 1.0        # or: python app.py   (v1.1)
+#   Selenium IDE extension -> Open an existing project -> TaskTrack.side -> Run all (suite "Regression")
+#   Restart app.py before running again (users are kept in memory)
 ```
