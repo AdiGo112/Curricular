@@ -6,6 +6,9 @@ Lab practical code for SPPU Computer Engineering (BE). Each folder has its own R
 | --- | --- | --- |
 | [`LP2/`](LP2/README.md) | Artificial Intelligence: search, greedy, CSP, chatbot, expert systems | Python |
 | [`cpp/`](cpp/) | LP2 programs in C++ | C++ |
+| [`LP3/DAA/`](LP3/DAA/README.md) | Design and Analysis of Algorithms | C++, Python |
+| [`LP3/ML/`](LP3/ML/README.md) | Machine Learning | Python |
+| [`LP3/BT/`](LP3/BT/README.md) | Blockchain Technology | Markdown, Solidity |
 | [`LP4/STQA/`](LP4/STQA/README.md) | Software Testing and Quality Assurance | Python, PHP, JS |
 | [`LP4/CSDF/`](LP4/CSDF/README.md) | Cyber Security and Digital Forensics | Python |
 | [`LP4/Multimedia/`](LP4/Multimedia/README.md) | Multimedia | Python, HTML/CSS/JS |
