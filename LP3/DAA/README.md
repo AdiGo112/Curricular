@@ -2,7 +2,7 @@
 
 LP3 Group A. Group B (Machine Learning), Group C (Blockchain) and item 6 (mini project) are out of scope here.
 
-**Study notes:** each file starts with a header comment covering the problem statement, approach, time/space complexity and likely viva questions; the body is commented step by step.
+**Study notes:** each file starts with a short header comment covering the problem, approach and time/space complexity.
 
 | # | Assignment | Files |
 | --- | --- | --- |
@@ -24,4 +24,4 @@ g++ -std=c++17 -O2 1_Fibonacci.cpp -o a.out && ./a.out
 python 1_Fibonacci.py
 ```
 
-Same pattern for files 2 to 5. Every program prompts for its own input at runtime (size, string, items, capacity, etc.) and also runs a quick `assert`-based sanity check against a hand-calculated sample before asking for input.
+Same pattern for files 2 to 5. Every program prompts for its own input at runtime (size, string, items, capacity, etc.).

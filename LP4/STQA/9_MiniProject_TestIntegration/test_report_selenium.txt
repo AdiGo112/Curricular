@@ -5,7 +5,7 @@ TaskTrack v1.1 - Selenium Regression Test Report
 +-------------------+-------+--------------------+---------+---------------------+
 | Application       | Build | Tool               | Browser | Date                |
 +===================+=======+====================+=========+=====================+
-| TaskTrack (Flask) | v1.1  | Selenium WebDriver | Chrome  | 2026-11-04 13:27:16 |
+| TaskTrack (Flask) | v1.1  | Selenium WebDriver | Chrome  | 2026-11-04 15:47:03 |
 +-------------------+-------+--------------------+---------+---------------------+
 
 1. Summary
@@ -13,7 +13,7 @@ TaskTrack v1.1 - Selenium Regression Test Report
 +-------+--------+--------+-----------+--------------+-----------------------------+
 | Total | Passed | Failed | Pass rate | Duration (s) | Verdict                     |
 +=======+========+========+===========+==============+=============================+
-| 12    | 12     | 0      | 100.0%    | 10.95        | ACCEPTED                    |
+| 12    | 12     | 0      | 100.0%    | 18.89        | ACCEPTED                    |
 +-------+--------+--------+-----------+--------------+-----------------------------+
 
 2. Test Results
@@ -22,30 +22,30 @@ TaskTrack v1.1 - Selenium Regression Test Report
 | ID    | Test case                                | Bug type if it   | Severity | Time (s) | Result |
 |       |                                          | fails            |          |          |        |
 +=======+==========================================+==================+==========+==========+========+
-| RT-01 | Home page redirects to Login page        | Functional       | Major    | 0.11     | PASS   |
+| RT-01 | Home page redirects to Login page        | Functional       | Major    | 0.16     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-02 | Valid registration shows success message | Functional       | Critical | 0.26     | PASS   |
+| RT-02 | Valid registration shows success message | Functional       | Critical | 0.55     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-03 | Password without digit is rejected       | Validation/Input | Major    | 0.26     | PASS   |
+| RT-03 | Password without digit is rejected       | Validation/Input | Major    | 0.54     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-04 | Wrong credentials show error             | Security         | Critical | 0.19     | PASS   |
+| RT-04 | Wrong credentials show error             | Security         | Critical | 0.55     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-05 | Valid login opens My Tasks page          | UI/Cosmetic      | Trivial  | 0.51     | PASS   |
+| RT-05 | Valid login opens My Tasks page          | UI/Cosmetic      | Trivial  | 1.37     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-06 | Added task appears in the list           | Functional       | Major    | 0.57     | PASS   |
+| RT-06 | Added task appears in the list           | Functional       | Major    | 1.71     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-07 | Blank task title shows error             | Validation/Input | Minor    | 0.52     | PASS   |
+| RT-07 | Blank task title shows error             | Validation/Input | Minor    | 1.63     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-08 | Done link marks task completed           | Functional       | Major    | 0.70     | PASS   |
+| RT-08 | Done link marks task completed           | Functional       | Major    | 1.61     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-09 | Delete link removes the task             | Functional       | Major    | 0.71     | PASS   |
+| RT-09 | Delete link removes the task             | Functional       | Major    | 1.83     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-10 | Logout blocks access to tasks page       | Session/State    | Critical | 0.62     | PASS   |
+| RT-10 | Logout blocks access to tasks page       | Session/State    | Critical | 1.71     | PASS   |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-11 | Invalid task index in the URL does not   | Crash/Exception  | Critical | 0.57     | PASS   |
+| RT-11 | Invalid task index in the URL does not   | Crash/Exception  | Critical | 1.35     | PASS   |
 |       | crash                                    |                  |          |          |        |
 +-------+------------------------------------------+------------------+----------+----------+--------+
-| RT-12 | HTML in a task title is shown as text,   | Security         | Critical | 1.06     | PASS   |
+| RT-12 | HTML in a task title is shown as text,   | Security         | Critical | 1.50     | PASS   |
 |       | not run                                  |                  |          |          |        |
 +-------+------------------------------------------+------------------+----------+----------+--------+
 
