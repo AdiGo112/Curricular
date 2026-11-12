@@ -130,15 +130,15 @@ TaskTrack is a new, self-contained web application with a browser front-end and 
 
 ## 4. Requirement Traceability (Requirement → Test)
 
-| Requirement | Test Cases (`9_MiniProject_TestIntegration/test_plan.md`) |
+| Requirement | Tests (RT = Selenium WebDriver, IDE = Selenium IDE, ET = exploratory, in `9_MiniProject_TestIntegration/test_plan.md`) |
 | --- | --- |
-| FR1.2 | TC02, TC03, TC04 |
-| FR1.3 | TC05 |
-| FR1.4 | TC06 |
-| FR1.5 | TC07 |
-| FR2.2, FR2.3 | TC08, TC09 |
-| FR2.1 | TC10 |
-| FR3.1, FR3.2 | TC11, TC12 |
-| FR3.3, FR3.4 | TC13, TC14 |
-| FR2.4, FR2.5 | TC16, TC17 |
-| NFR5 | TC15 |
+| FR1.2 | RT-02; ET-01 (v1.1) |
+| FR1.3 | RT-03, IDE-3 |
+| FR1.4 | not covered by a script (gap) |
+| FR1.5 | ET-02 (v1.1) |
+| FR2.2, FR2.3 | RT-04, IDE-2 |
+| FR2.1 | RT-05, IDE-1 |
+| FR3.1, FR3.2 | RT-06, RT-07, RT-12 |
+| FR3.3, FR3.4 | RT-08, RT-09, IDE-4 |
+| FR2.4, FR2.5 | RT-10, IDE-1 |
+| NFR5 | RT-11, IDE-4 |

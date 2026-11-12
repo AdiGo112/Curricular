@@ -20,7 +20,7 @@ A defect (bug) report records a difference between the **expected** and the **ac
 | **Assigned To** | Developer |
 | **Environment** | Windows 11, Python 3.13, Flask 3, Chrome |
 | **Build / Version** | 1.0 |
-| **Found In** | Unit / Integration testing (`test_unit_integration.py`) |
+| **Found In** | Unit / Integration testing (during development) |
 | **Severity** | Critical |
 | **Priority** | P1 (High) |
 | **Status** | Closed |
@@ -48,9 +48,9 @@ TypeError: render_template_string() got multiple values for keyword argument 'er
 return render_template_string(PAGE, **{"error": "", "msg": "", **kw})
 ```
 
-**Verification:** 9 previously failing test cases now pass (19/19). Defect closed.
+**Verification:** all previously failing test cases now pass. Defect closed.
 
-**Attachments:** console stack trace, `test_report_unit.txt`
+**Attachments:** console stack trace
 
 ---
 

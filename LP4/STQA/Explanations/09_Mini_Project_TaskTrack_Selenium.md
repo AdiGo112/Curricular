@@ -5,29 +5,29 @@ Create a small web-based application. Narrate a concise test plan consisting of 
 
 ## Theory and Fundamentals
 
-### Levels and types of testing used
+### Types of testing used
 | Type | Meaning | In this project |
 | --- | --- | --- |
-| **Unit testing** | one function alone | `validate_username`, `validate_password`, `validate_task` |
-| **Integration testing** | modules together | register -> login -> add -> done -> delete -> logout |
 | **System testing** | the whole app in a real environment | Selenium in a browser |
-| **Regression testing** | re-run old tests after every change to confirm nothing that worked is now broken | `test_selenium_regression.py` |
-| **Exploratory testing** | testers learn, design and run tests at the same time, without fixed scripts | 20-minute charter (see below) |
+| **Regression testing** | re-run old tests after every change to confirm nothing that worked is now broken | WebDriver `test_selenium_regression.py`, IDE `TaskTrack.side` |
+| **Exploratory testing** | testers learn, design and run tests at the same time, without fixed scripts | 20-minute charter on each build (`exploratory_log.csv`) |
 | **Acceptance testing** | decide if the app can be accepted | verdict in the report |
 
 ### Regression testing
 Every bug fix or new feature may break something else. A **regression suite** is a stable set of tests that is run again and again, so it is a good candidate for automation. It should be fast, repeatable and independent.
 
-### Exploratory testing
-It has a **charter** (a goal and a time box), is based on the tester's experience and curiosity, and notes what was tried and what was seen. It finds bugs that scripted tests miss, for example odd inputs and strange navigation.
+### How regression finds bugs here: two builds
+The same code has two builds. **v1.0** (`python app.py 1.0`) is the first release and has 6 bugs, one of each bug type. **v1.1** (`python app.py`) is the fixed release. The *same* regression scripts run on both builds:
+- v1.0: scripts fail, so the bugs are identified, and the verdict is REJECTED.
+- v1.1: all scripts pass, which shows the bugs are fixed and nothing else broke. The verdict is ACCEPTED.
 
-### Black-box and white-box techniques
-- **White-box**: tests written by reading the code, so each branch of a validator runs.
-- **Black-box**: tests send HTTP requests and check only the response. Uses **EP** (equivalence classes) and **BVA** (boundary values such as username length 3, 15, 16).
+### Exploratory testing
+It has a **charter** (a goal and a time box), is based on the tester's experience and curiosity, and notes what was tried and what was seen. It finds bugs that scripted tests miss, for example odd inputs and strange navigation. A bug found this way is then added to the regression suite, so it can never come back unnoticed.
 
 ### Selenium basics needed
 - **WebDriver**: a script controls a real browser. **Locators** (ID, CSS, XPath) find elements. **Waits** handle page loading.
 - **Selenium IDE**: a browser extension that **records** your clicks and typing as a test and plays it back. Saved as a `.side` file (JSON). Good for quick tests and for non-programmers.
+- **assert vs verify (IDE)**: `assert…` stops the test at the first failure. `verify…` logs the failure and continues.
 - **Stale element**: a reference to a page element that no longer exists because the page reloaded (`StaleElementReferenceException`).
 - **Flaky test**: a test that sometimes passes and sometimes fails without any code change, often because of timing.
 
@@ -36,156 +36,129 @@ Bugs are classified by **type** and **severity**.
 
 | Type | Example in TaskTrack |
 | --- | --- |
-| Functional | task not added to the list |
-| Validation / Input | blank task title accepted |
-| UI / Cosmetic | error not shown in red |
-| Security | `/tasks` opens without login |
+| Functional | "Done" does nothing |
+| Validation / Input | password without a digit accepted |
+| UI / Cosmetic | heading reads "My Task" |
+| Security | HTML in a task title runs (XSS) |
 | Session / State | still logged in after logout |
 | Crash / Exception | HTTP 500 on an invalid task index |
 | Automation / Test | stale element in a Selenium script |
 
-Severity: Critical (crash or data loss), Major (main feature broken), Minor (small defect), Trivial (cosmetic).
+Severity: Critical (crash, data loss or security hole), Major (main feature broken), Minor (small defect), Trivial (cosmetic).
 
 ## How the Code / Document Works
 
-Folder `9_MiniProject_TestIntegration/` contains `app.py`, `report.py`, `test_unit_integration.py`, `test_selenium_regression.py`, `TaskTrack.side`, `test_plan.md`, and the generated `test_report_unit.txt` and `test_report_selenium.txt`.
+Folder `9_MiniProject_TestIntegration/` contains:
+
+| File | PS part |
+| --- | --- |
+| `app.py` | the web application (two builds) |
+| `test_plan.md` | test plan, features, bug taxonomy, bugs, exploratory, summary |
+| `test_selenium_regression.py` | regression scripts in Selenium WebDriver (RT-01 to RT-12) |
+| `TaskTrack.side` | regression scripts in Selenium IDE (IDE-1 to IDE-4) |
+| `exploratory_log.csv` | notes from the exploratory session |
+| `report.py` | writes the test report |
+| `test_report_selenium.txt` | generated test report (accepted build v1.1) |
 
 ### The application (`app.py`)
-A small Flask web app. Storage is in memory (`users` and `tasks` dictionaries), so data resets on restart.
-
-**Validation functions** (white-box targets):
-
-```python
-def validate_password(password):
-    if len(password) < 6:
-        return "Password must be at least 6 characters"
-    if not re.search(r"\d", password):
-        return "Password must contain a digit"
-    return ""
-```
-They return `""` when valid, otherwise an error message. Rules: username `[A-Za-z0-9_]{3,15}`; password at least 6 characters with a digit; task title 1 to 50 characters after `strip()`.
-
-**Routes**
+A small Flask app, with storage in memory. Rules: username `[A-Za-z0-9_]{3,15}`; password at least 6 characters with a digit; task title 1 to 50 characters.
 
 | Route | Behaviour |
 | --- | --- |
-| `/` | redirect to tasks if logged in, else to login |
-| `/register` (GET, POST) | validate, check passwords match, check username unique ignoring case, then show Login with "Registration successful, please login" |
-| `/login` (GET, POST) | blank gives "Enter username and password", mismatch gives "Invalid username or password", success stores `session["user"]` |
-| `/logout` | removes the user from the session |
-| `/tasks` | list page, redirects to login if not logged in |
-| `/tasks/add` (POST) | validate title, append task |
-| `/tasks/<int:i>/<action>` | `done` or `delete`; an out-of-range index is ignored (no crash) |
+| `/` | go to tasks if logged in, else to login |
+| `/register`, `/login` | forms with validation messages |
+| `/logout` | ends the session |
+| `/tasks`, `/tasks/add` | list and add tasks (login needed) |
+| `/tasks/<i>/done`, `/tasks/<i>/delete` | complete or delete; a bad index is ignored |
 
-**Test-friendly HTML**: the template gives elements fixed ids (`username`, `password`, `confirm`, `submit`, `heading`, `error`, `msg`, `task-title`, `add-task`, `task-list`, `count`, `logout`) which the Selenium scripts use as locators.
-
-**The helper that caused DEF-001:**
+**Build switch:** `VERSION = "1.1"` and `buggy()` returns `VERSION == "1.0"`. Each planted bug is one guarded line:
 
 ```python
-def page(**kw):
-    return render_template_string(PAGE, **{"error": "", "msg": "", **kw})
+if not buggy():   # BUG-04 (v1.0): logout does not end the session
+    session.pop("user", None)
 ```
 
-### Report generator (`report.py`)
-`run_and_report(test_classes, title, report_file)` runs a unittest suite and writes a text report with one line per test (name, PASS/FAIL/ERROR and description), totals, a verdict, and a "DEFECT" line for each failure.
-
-```python
-if rate == 100:        verdict = "ACCEPTED"
-elif rate >= 90:       verdict = "ACCEPTED WITH MINOR DEFECTS"
-else:                  verdict = "REJECTED"
-```
-
-Both test files use it.
-
-### Unit and integration tests (`test_unit_integration.py`): 19 tests
-| Class | Tests | Kind |
+| Bug | What v1.0 does | Type, severity |
 | --- | --- | --- |
-| `WhiteBoxValidation` | 9 | each branch of the three validators |
-| `BlackBoxRegister` | 5 | BVA on username length 3, 15, 16; password mismatch; duplicate user in a different case |
-| `BlackBoxLogin` | 3 | empty fields, wrong password, `/tasks` redirects when logged out |
-| `IntegrationFlow` | 2 | full journey; invalid task index does not crash |
+| BUG-01 | skips the digit rule in `validate_password` | Validation/Input, Major |
+| BUG-02 | shows the heading "My Task" | UI/Cosmetic, Trivial |
+| BUG-03 | "Done" does nothing | Functional, Major |
+| BUG-04 | logout keeps the session | Session/State, Critical |
+| BUG-05 | no range check, so `/tasks/99/delete` raises IndexError (HTTP 500) | Crash/Exception, Critical |
+| BUG-06 | renders the title with `\|safe` (XSS) | Security, Critical |
 
-Black-box tests use the **Flask test client** (`app.test_client()`) so no real server or browser is needed. `setUp` clears `users` and `tasks` for independence.
+**Test-friendly HTML:** fixed ids (`username`, `password`, `confirm`, `submit`, `heading`, `error`, `msg`, `task-title`, `add-task`, `task-list`, `count`, `logout`, `version`) are the locators used by WebDriver and IDE. The footer shows `TaskTrack v1.0` or `TaskTrack v1.1`.
 
-```python
-def test_username_boundary_over(self):
-    """BVA: username length 16 is rejected"""
-    self.assertIn(b"3-15", self.register("a" * 16).data)
-```
-
-### Selenium regression suite (`test_selenium_regression.py`): 10 tests
-- `setUpClass` starts the Flask app **inside the test** on port 5001 using `werkzeug.serving.make_server` in a thread, and opens a browser. So `app.py` need not be run separately.
-- Environment variables: `BROWSER=edge` and `HEADLESS=1`. `implicitly_wait(3)` is set.
-- `setUp` clears users, tasks and cookies before every test.
-- Tests RT-01 to RT-10: login page loads, valid registration, weak password, invalid login, valid login, add task, blank task, complete task, delete task, logout.
-
-**Important helper, `click_and_wait`:** `click()` returns before the next page has loaded, so a script may read the OLD page. The helper keeps the old `<html>` element and waits until it becomes stale (the page changed).
+### Selenium WebDriver regression (`test_selenium_regression.py`)
+- `python test_selenium_regression.py 1.0` tests the buggy build and prints the report, with the bugs identified, to the console. With no argument it tests v1.1 and writes `test_report_selenium.txt`, so the file always holds the accepted build. The script sets `webapp.VERSION`, starts the app on port 5001 in a thread (`make_server`) and opens Chrome. `BROWSER=edge` and `HEADLESS=1` are optional.
+- `setUp` clears users, tasks and cookies, so every script is independent.
+- 12 scripts, RT-01 to RT-12. Each docstring ends with the bug type and severity reported if it fails:
 
 ```python
-old_page = self.find("html")
-self.find(css).click()
-...
-WebDriverWait(self.driver, 10).until(old_page_gone)
+def test_11_invalid_task_index(self):
+    """RT-11: Invalid task index in the URL does not crash [Crash/Exception, Critical]"""
+    self.register_and_login()
+    self.driver.get(BASE + "/tasks/99/delete")
+    self.assertNotIn("Internal Server Error", self.driver.page_source)
 ```
 
-This is the fix for BUG-02 (a stale element or timing error found by the Selenium run) and shows why waits matter.
+- **`click_and_wait`:** `click()` returns before the next page loads, so the helper waits until the old `<html>` element goes stale. This fixed BUG-07, a `StaleElementReferenceException` in the script itself (an Automation/Test bug).
 
 ### Selenium IDE (`TaskTrack.side`)
-A JSON project with two tests and one suite named **Regression**:
-
-1. "Register login add task logout" (16 commands: `open`, `type`, `click`, `assertText` with targets such as `id=username`, `css=#task-list .title`).
-2. "Invalid login shows error" (5 commands).
+The suite **Regression** has 4 recorded tests: IDE-1 register, login, add, logout (after which `/tasks` must show Login); IDE-2 invalid login; IDE-3 password without a digit; IDE-4 Done, HTML title, invalid index.
 
 ```json
-{ "command": "assertText", "target": "id=error", "value": "Invalid username or password" }
+{ "command": "verifyText", "target": "css=#task-list .title", "value": "<b>hi</b>" }
 ```
 
-The IDE project uses user `ideuser`, and the app must be running at `http://127.0.0.1:5000`.
+On v1.0, IDE-1, IDE-3 and IDE-4 fail, and together they catch all 6 bugs. On v1.1 all 4 pass.
 
-### The test plan (`test_plan.md`)
-Sections: 1 Environment, 2 Test plan (objective; features F1 to F6: registration, login, add, complete, delete task, logout/session; features not tested; approach table; entry and exit criteria; acceptance criteria; deliverables), 3 Bug taxonomy, 4 Test cases TC01 to TC17 with procedures, 5 Regression scripts, 6 Bugs identified, 7 Exploratory testing, 8 Test report summary.
+### Report (`report.py`) and exploratory testing
+`run_and_report(classes, title, extra)` runs the suite once. A `TimedResult` class records how many seconds each test took. The function returns the report as plain-text grid tables (built by `table()`, which wraps long cells):
 
-**Bugs identified**
+| Section | Table columns |
+| --- | --- |
+| Header | Application, Build, Tool, Browser, Date (with seconds) |
+| 1. Summary | Total, Passed, Failed, Pass rate, Duration (s), Verdict |
+| 2. Test Results | ID, Test case, Bug type if it fails, Severity, Time (s), Result |
+| 3. Bugs Identified | ID, Failed check, Bug type, Severity, Evidence (the assertion error) |
+| 4. Exploratory Testing | ID, Area, What was tried, What was observed, Result, Bug (rows of `exploratory_log.csv` for that build) |
 
-| ID | Found by | Description | Severity | Status |
+The bug type and severity come from the test's docstring, `"RT-03: ... [Validation/Input, Major]"`. Verdict: 100% is ACCEPTED, at least 90% is ACCEPTED WITH MINOR DEFECTS, anything lower is REJECTED.
+
+On v1.0, exploration found BUG-06 (XSS), which no script covered at the time, so it was added as RT-12. On v1.1 it found BUG-08: Done and Delete are GET links, so a prefetch could change data. BUG-08 is Minor and still open.
+
+### Results
+
+| Build | WebDriver | IDE | Exploratory | Verdict |
 | --- | --- | --- | --- | --- |
-| BUG-01 | unit/integration tests | every error message crashed the server (HTTP 500, `TypeError`) | Critical | Fixed in `page()` |
-| BUG-02 | Selenium regression | stale element when logging in straight after registering | Major | Fixed (open `/login` before typing) |
-| BUG-03 | exploratory | Done and Delete are GET links, so a prefetch could change data | Minor | Open, accepted for the lab version |
-
-**Exploratory session (charter: Register and Task pages for 20 minutes).** Seven observations, all Pass, for example: username with spaces rejected; same username in a different case rejected; task of 50 characters accepted and 51 rejected; `<b>hi</b>` shown as plain text (Jinja escapes it); Back button after logout shows the cached page but every action redirects to login; `/tasks/-1/delete` gives 404.
-
-**Summary:** Unit and Integration 19/19, Selenium 10/10, Exploratory 7/7. Only BUG-03 (Minor) is open, so the verdict is **ACCEPTED**.
+| v1.0 | 6/12 (50%) | 1/4 | 4 bugs | REJECTED |
+| v1.1 | 12/12 (100%) | 4/4 | 1 Minor (BUG-08) | ACCEPTED |
 
 ## How to Run and Expected Output
 
 ```bash
-pip install -r ../requirements.txt     # selenium, openpyxl, flask, coverage
+pip install -r ../requirements.txt      # selenium, flask, ...
 cd 9_MiniProject_TestIntegration
-python app.py                          # use the app at http://127.0.0.1:5000
-python test_unit_integration.py        # writes test_report_unit.txt
-python test_selenium_regression.py     # writes test_report_selenium.txt
+python test_selenium_regression.py 1.0   # console: v1.0 REJECTED, 6 bugs identified
+python test_selenium_regression.py       # test_report_selenium.txt: v1.1 ACCEPTED
 ```
 
-Set `HEADLESS=1` to hide the browser window, or `BROWSER=edge` to use Edge. Chrome or Edge must be installed (Selenium Manager downloads the driver).
-
-Expected results:
-
+An excerpt from the v1.0 console output:
 ```
-Total: 19   Passed: 19   Failed: 0   Pass rate: 100.0%
-Verdict: ACCEPTED
+3. Bugs Identified
++-------+------------------------------+------------------+----------+------------------------------------+
+| ID    | Failed check                 | Bug type         | Severity | Evidence                           |
++=======+==============================+==================+==========+====================================+
+| RT-05 | Valid login opens My Tasks   | UI/Cosmetic      | Trivial  | AssertionError: 'My Task' != 'My   |
+|       | page                         |                  |          | Tasks'                             |
++-------+------------------------------+------------------+----------+------------------------------------+
+...
 ```
-for the unit and integration run, and
 
-```
-Total: 10   Passed: 10   Failed: 0   Pass rate: 100.0%
-Verdict: ACCEPTED
-```
-for the Selenium run. The console also prints `Report written to <file>  ->  ACCEPTED`.
+**Selenium IDE:** run `python app.py 1.0` (or `python app.py` for v1.1). In the Selenium IDE extension, choose **Open an existing project** → `TaskTrack.side` → **Run all**. Restart `app.py` before running again, because users are kept in memory.
 
-**Selenium IDE:** install the extension in Chrome or Edge, choose **Open an existing project**, select `TaskTrack.side`, start `python app.py`, then run the **Regression** suite. Users are stored in memory, so **restart `app.py` before running again**, otherwise `ideuser` already exists.
-
-With Docker (from the `STQA` folder): `docker compose up --build -d tasktrack` serves the app at `http://localhost:5000`.
+With Docker (from `STQA`): `docker compose up --build -d tasktrack` serves v1.1 at `http://localhost:5000`.
 
 ## Related Concepts and Real-World Tools
 
@@ -193,39 +166,39 @@ With Docker (from the `STQA` folder): `docker compose up --build -d tasktrack` s
 - **Modern UI automation**: Cypress, Playwright (auto-waiting reduces flaky tests).
 - **Visual and cross-browser**: BrowserStack, Sauce Labs, Percy.
 - **Selenium Grid** runs the regression suite on many browsers in parallel (Assignment 5).
-- **CI**: Jenkins, GitHub Actions run the regression suite on every commit, so regressions are found at once.
+- **CI**: Jenkins and GitHub Actions run the regression suite on every commit, so regressions are found at once.
 - **Bug tracking**: JIRA, Bugzilla (Assignment 4).
 - **Exploratory tools**: session-based test management, screen recorders, browser DevTools.
-- **Web security**: using POST plus CSRF tokens for state changes (BUG-03), OWASP ZAP.
+- **Web security**: output escaping against XSS (BUG-06), POST plus CSRF tokens for state changes (BUG-08), OWASP ZAP.
 
 ## Viva Questions
 
 1. **What is regression testing and why automate it?**
    Re-running earlier tests after a change to confirm nothing broke. It is repeated often, so automation saves time and is more reliable.
 
-2. **What is exploratory testing and how is it different from scripted testing?**
-   The tester learns, designs and executes tests at the same time within a time-boxed charter. Scripted testing follows pre-written cases.
+2. **How did your regression suite identify bugs?**
+   The same 12 WebDriver scripts and 4 IDE tests ran on v1.0 and v1.1. On v1.0, 6 scripts failed, and each failure maps to one bug through the type and severity in its docstring. On v1.1 all passed, which proves the fixes work and nothing else broke.
 
-3. **What is Selenium IDE?**
-   A browser extension that records user actions as a test and plays them back. The project is saved in a `.side` file.
+3. **What is exploratory testing and how is it different from scripted testing?**
+   The tester learns, designs and executes tests at the same time within a time-boxed charter. Scripted testing follows pre-written cases. Here, exploration found the XSS bug (BUG-06), which was then scripted as RT-12.
 
 4. **Difference between Selenium IDE and WebDriver?**
-   IDE is record and playback with little coding. WebDriver is a programming API (Python here), which is more flexible, supports loops, conditions and frameworks.
+   IDE is record and playback with little coding. WebDriver is a programming API (Python here), which is more flexible and supports loops, conditions and frameworks.
 
-5. **What is a stale element exception and how did you handle it?**
-   It occurs when a stored element no longer exists because the page reloaded. My `click_and_wait` helper waits until the old page goes stale before reading the new page.
+5. **Difference between assert and verify in Selenium IDE?**
+   `assert` stops the test at the first failure. `verify` logs the failure and continues, so one run of IDE-4 reports three bugs.
 
-6. **What is the bug taxonomy of your project?**
-   Functional, validation, UI, security, session/state, crash and automation/test defects, each with a severity of Critical, Major, Minor or Trivial.
+6. **What is a stale element exception and how did you handle it?**
+   It occurs when a stored element no longer exists because the page reloaded. The `click_and_wait` helper waits until the old page goes stale before reading the new page (BUG-07).
 
-7. **Which bug did the unit tests find and why was it Critical?**
-   Every validation error crashed the server (HTTP 500) because `page()` passed the keyword `error` twice. It broke all forms, so it was Critical. It was fixed by merging defaults with the caller's values.
+7. **What is the bug taxonomy of your project?**
+   Functional, validation, UI, security, session/state, crash and automation/test defects, each with a severity of Critical, Major, Minor or Trivial. v1.0 has one bug of each app type.
 
-8. **What is the open bug BUG-03?**
+8. **Why is BUG-06 (XSS) Critical?**
+   A task title containing a script would run in the browser, so an attacker could steal the session. Jinja escapes output by default. v1.0 turned this off with `|safe`.
+
+9. **What is the open bug BUG-08?**
    Done and Delete use GET links, so visiting a URL changes data. It is Minor and accepted for the lab version. The fix is POST forms with CSRF tokens.
 
-9. **How do the black-box tests run without a browser?**
-   They use Flask's test client to send HTTP requests directly to the app and check the response.
-
 10. **How is the acceptance decision made?**
-    By pass rate: 100% is ACCEPTED, at least 90% with only minor bugs open is ACCEPTED WITH MINOR DEFECTS, below 90% is REJECTED. All suites passed and only a Minor bug is open, so the application is accepted.
+    By pass rate: 100% is ACCEPTED, at least 90% with only minor bugs open is ACCEPTED WITH MINOR DEFECTS, below 90% is REJECTED. v1.0 is rejected (50%). v1.1 is accepted (100%, with only BUG-08, a Minor bug, open).

@@ -55,7 +55,7 @@ A good report also records the **root cause** (why it happened) and **verificati
 
 ### Defect 1: DEF-001 (Critical, P1, Closed)
 - **Title:** server crashes (HTTP 500) whenever a validation error message must be shown.
-- **Found in:** unit/integration testing (`test_unit_integration.py`).
+- **Found in:** unit/integration testing during development.
 - **Steps:** open `/login`, leave both fields blank, click Login.
 - **Expected:** the message "Enter username and password".
 - **Actual:** "500 Internal Server Error". The console shows `TypeError: render_template_string() got multiple values for keyword argument 'error'`.
@@ -94,10 +94,10 @@ Nothing to run. To see the defect for yourself (optional), use the TaskTrack pro
 
 ```bash
 cd 9_MiniProject_TestIntegration
-python test_unit_integration.py
+python test_selenium_regression.py
 ```
 
-The report `test_report_unit.txt` shows 19 tests, all passing now. The DEF-001 test cases passed only after the fix in `page()` was applied.
+In `test_report_selenium.txt`, build v1.1 shows 12 tests, all passing. Their error-message checks (RT-03, RT-04, RT-07) pass only because of the fix in `page()`.
 
 For DEF-002: run `python app.py`, log in, add a task and open `http://127.0.0.1:5000/tasks/0/delete` in the same browser. The task disappears.
 

@@ -19,7 +19,6 @@ PROGRAMS = [
     ("7  COVID-19 regex tests (Python)", [PY, "test_regex.py"], "7_MiniProject_Covid19"),
     ("7  COVID-19 regex tests (JavaScript)", ["node", "test_regex.js"], "7_MiniProject_Covid19"),
     ("8  Library: unit + coverage", [PY, "run_tests.py"], "8_MiniProject_Library"),
-    ("9  TaskTrack: unit + integration", [PY, "test_unit_integration.py"], "9_MiniProject_TestIntegration"),
     ("9  TaskTrack: Selenium regression", [PY, "test_selenium_regression.py"], "9_MiniProject_TestIntegration"),
 ]
 

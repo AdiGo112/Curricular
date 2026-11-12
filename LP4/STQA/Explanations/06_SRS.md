@@ -93,9 +93,9 @@ Sample requirement text:
 **3.4 Use case "Add Task"**: actor Registered User, pre-condition logged in. Main flow: type title, click Add, system validates, system adds and shows the list. Alternate flow 3a: blank or longer than 50 characters shows an error and the list is unchanged. Post-condition: task count increases by 1.
 
 ### Section 4: Requirement traceability
-A table from requirements to test cases TC02 to TC17 in the Assignment 9 test plan, for example FR1.2 to TC02, TC03, TC04; FR1.3 to TC05; FR2.4 and FR2.5 to TC16 and TC17; NFR5 to TC15.
+A table from requirements to the Assignment 9 regression scripts, for example FR1.3 to RT-03 and IDE-3; FR2.4 and FR2.5 to RT-10 and IDE-1; NFR5 to RT-11 and IDE-4. FR1.2 and FR1.5 are also covered by the exploratory session (ET-01, ET-02). FR1.4 (password mismatch) has no script yet; the table marks it as a gap.
 
-This links the documents: SRS requirement -> test plan test case -> automated test (`test_unit_integration.py` and `test_selenium_regression.py`).
+This links the documents: SRS requirement -> test plan test case -> automated test (`test_selenium_regression.py` and `TaskTrack.side`).
 
 ### How the SRS matches the code
 The validation rules in the SRS appear in `app.py`, for example FR1.2 is `re.fullmatch(r"[A-Za-z0-9_]{3,15}", username)`, and FR3.1 is `len(title) > 50` after `strip()`. The SRS (NFR7) asks for separate validation functions, and `app.py` has `validate_username`, `validate_password` and `validate_task`.
@@ -109,9 +109,9 @@ Nothing to run. Open the Markdown file. To use it:
 3. Run the TaskTrack tests:
    ```bash
    cd 9_MiniProject_TestIntegration
-   python test_unit_integration.py
+   python test_selenium_regression.py
    ```
-   Expected result: 19 tests, all PASS, verdict ACCEPTED.
+   Expected result: 12 tests, all PASS, verdict ACCEPTED.
 
 To write your own SRS use the same skeleton: Introduction, Overall Description, Specific Requirements (FR and NFR), Use cases, Traceability.
 
