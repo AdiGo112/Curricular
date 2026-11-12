@@ -24,14 +24,12 @@ Approach
   and `sales_amount` are on very different numeric scales; without scaling,
   K-Means' distance metric would be dominated by sales_amount alone.
 
-Synthetic dataset
-------------------
-Kaggle's real "sales_data_sample.csv" is not reachable from this
-environment (no internet access), so `build_dataset()` generates points
-from a KNOWN number of underlying clusters (`make_blobs`, TRUE_N_CLUSTERS =
-4), so the elbow method's pick can be checked against that ground truth.
-Numbers below are illustrative of the technique, not results on the real
-Kaggle data.
+Dataset
+-------
+The real Kaggle "Sample Sales Data" (sales_data_sample.csv), 2,823 orders;
+QUANTITYORDERED and SALES are used as the two clustering features, saved
+locally at data/sales_data_sample.csv. The file has a couple of non-UTF-8
+bytes in free-text columns (customer/address names), hence `encoding="latin1"`.
 
 Likely viva questions
 ----------------------
@@ -43,8 +41,7 @@ A: More clusters can only reduce or keep equal the distance from each point
    cluster (inertia = 0) but that's useless. The elbow finds where adding
    more clusters stops meaningfully helping.
 
-Q: Why scale features before K-Means but not before Random Forest
-   (Assignment 1)?
+Q: Why scale features before K-Means but not before a tree-based model?
 A: K-Means clusters based on Euclidean distance, so a feature on a much
    larger numeric scale would dominate that distance; tree splits are
    invariant to the scale of any single feature.
@@ -67,36 +64,15 @@ import matplotlib
 matplotlib.use("Agg")  # no display needed; just save the plot to a file
 import matplotlib.pyplot as plt
 
+from pathlib import Path
+
 import numpy as np
-from sklearn.datasets import make_blobs
+import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-RNG_SEED = 13
-TRUE_N_CLUSTERS = 4
-OUTPUT_PNG = "elbow_curve.png"
-
-
-# BUILD A SYNTHETIC SALES DATASET: quantity_ordered vs sales_amount,
-# generated from TRUE_N_CLUSTERS known customer segments.
-
-def build_dataset():
-    # Equal, well-separated blobs so the elbow method has a clear knee.
-    X, _ = make_blobs(
-        n_samples=400,
-        centers=TRUE_N_CLUSTERS,
-        n_features=2,
-        cluster_std=1.0,
-        center_box=(-12.0, 12.0),
-        random_state=RNG_SEED,
-    )
-    # Stretch into quantity_ordered / sales_amount-like ranges. A uniform
-    # per-axis scale keeps the relative cluster separation unchanged.
-    quantity_ordered = 10 * X[:, 0] + 80
-    sales_amount = 700 * X[:, 1] + 6000
-    X = np.column_stack([quantity_ordered, sales_amount])
-    # Clip negative values -- quantity/amount can't go below zero.
-    return np.clip(X, a_min=0, a_max=None)
+DATA_PATH = Path(__file__).parent / "data" / "sales_data_sample.csv"
+OUTPUT_PNG = Path(__file__).parent / "elbow_curve.png"
 
 
 # ELBOW METHOD: compute inertia for k=1..10, pick the "knee" as the k whose
@@ -120,11 +96,13 @@ def find_elbow(inertias):
 
 
 if __name__ == "__main__":
-    X = build_dataset()
-    print(f"Dataset: {len(X)} points, generated from {TRUE_N_CLUSTERS} true clusters\n")
+    # latin1: the file has a few non-UTF-8 bytes in free-text columns we don't use.
+    raw = pd.read_csv(DATA_PATH, encoding="latin1")
+    X = raw[["QUANTITYORDERED", "SALES"]].to_numpy(dtype=float)
+    print(f"Dataset: {len(X)} orders (QUANTITYORDERED vs SALES)\n")
 
-    # quantity_ordered and sales_amount are on very different scales; without
-    # scaling, KMeans distances would be dominated by sales_amount alone.
+    # QUANTITYORDERED and SALES are on very different scales; without
+    # scaling, KMeans distances would be dominated by SALES alone.
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
@@ -159,11 +137,6 @@ if __name__ == "__main__":
     centers = scaler.inverse_transform(final_km.cluster_centers_)  # back to original units
 
     print(f"\nFinal K-Means fit with k={chosen_k}:")
-    print("Cluster centers (quantity_ordered, sales_amount):")
+    print("Cluster centers (QUANTITYORDERED, SALES):")
     print(np.round(centers, 1))
     print("Cluster sizes:", np.bincount(labels).tolist())
-
-    # SANITY CHECK: the elbow method should land close to the true
-    # number of generated clusters.
-    assert abs(chosen_k - TRUE_N_CLUSTERS) <= 1, f"Elbow pick {chosen_k} far from true {TRUE_N_CLUSTERS}"
-    print(f"\nSanity check passed: chosen k={chosen_k} is within 1 of the true {TRUE_N_CLUSTERS}")
