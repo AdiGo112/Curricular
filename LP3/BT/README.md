@@ -6,11 +6,11 @@ deployment steps and viva questions.
 
 | # | Assignment | Write-up | Code |
 | --- | --- | --- | --- |
-| 1 | Installation of MetaMask and spending Ether per transaction | `1_MetaMask.md` | |
-| 2 | Creating a wallet using MetaMask for crypto transactions | `2_CryptoWallet.md` | |
-| 3 | Smart contract for a bank account: deposit, withdraw, show balance | `3_BankSmartContract.md` | `3_BankAccount.sol` |
-| 4 | Student data smart contract: structures, arrays, fallback function | `4_StudentDataSmartContract.md` | `4_StudentData.sol` |
-| 5 | Survey report: types of blockchains and real-time use cases | `5_BlockchainSurveyReport.md` | |
+| 1 | Installation of MetaMask and spending Ether per transaction | `Explanations/1_MetaMask.md` | |
+| 2 | Creating a wallet using MetaMask for crypto transactions | `Explanations/2_CryptoWallet.md` | |
+| 3 | Smart contract for a bank account: deposit, withdraw, show balance | `Explanations/3_BankSmartContract.md` | `3_BankAccount.sol` |
+| 4 | Student data smart contract: structures, arrays, fallback function | `Explanations/4_StudentDataSmartContract.md` | `4_StudentData.sol` |
+| 5 | Survey report: types of blockchains and real-time use cases | `Explanations/5_BlockchainSurveyReport.md` | |
 
 ## How to run
 

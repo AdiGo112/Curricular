@@ -6,11 +6,11 @@ file. Each notebook is the same code as its script, split into cells.
 
 | # | Assignment | Write-up | Code | Dataset |
 | --- | --- | --- | --- | --- |
-| 1 | Uber ride price prediction: Linear Regression vs Random Forest | `1_UberRidePricePrediction.md` | `1_UberRidePricePrediction.py` / `.ipynb` | `data/uber.csv` |
-| 2 | Email spam classification: KNN vs SVM | `2_EmailSpamClassification.md` | `2_EmailSpamClassification.py` / `.ipynb` | `data/emails.csv`, else `data/spambase.data` |
-| 3 | Bank customer churn: neural network classifier | `3_BankCustomerChurnANN.md` | `3_BankCustomerChurnANN.py` / `.ipynb` | `data/Churn_Modelling.csv` |
-| 4 | Gradient Descent to find the local minima of a function | `4_GradientDescent.md` | `4_GradientDescent.py` / `.ipynb` | none |
-| 5 | K-Means clustering with the elbow method | `5_KMeansClustering.md` | `5_KMeansClustering.py` / `.ipynb` | `data/sales_data_sample.csv` |
+| 1 | Uber ride price prediction: Linear Regression vs Random Forest | `Explanations/1_UberRidePricePrediction.md` | `1_UberRidePricePrediction.py` / `.ipynb` | `data/uber.csv` |
+| 2 | Email spam classification: KNN vs SVM | `Explanations/2_EmailSpamClassification.md` | `2_EmailSpamClassification.py` / `.ipynb` | `data/emails.csv`, else `data/spambase.data` |
+| 3 | Bank customer churn: neural network classifier | `Explanations/3_BankCustomerChurnANN.md` | `3_BankCustomerChurnANN.py` / `.ipynb` | `data/Churn_Modelling.csv` |
+| 4 | Gradient Descent to find the local minima of a function | `Explanations/4_GradientDescent.md` | `4_GradientDescent.py` / `.ipynb` | none |
+| 5 | K-Means clustering with the elbow method | `Explanations/5_KMeansClustering.md` | `5_KMeansClustering.py` / `.ipynb` | `data/sales_data_sample.csv` |
 
 ## How to run
 

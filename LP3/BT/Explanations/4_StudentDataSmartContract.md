@@ -5,7 +5,7 @@ Write a program in Solidity to create Student data. Use structures, arrays and a
 
 ## Solidity Contract
 
-The same code is in `4_StudentData.sol`.
+The same code is in `../4_StudentData.sol`.
 
 ```solidity
 // SPDX-License-Identifier: MIT
