@@ -4,3 +4,4 @@ draw.excalidraw
 __pycache__/
 .coverage
 htmlcov/
+.ipynb_checkpoints/

@@ -11,9 +11,8 @@ two classifiers.
 Approach
 --------
 - Both KNN and SVM are distance-based, so features are standardized first
-  (`StandardScaler`) -- otherwise a large-magnitude feature like
-  `email_length` would dominate the distance calculation over more
-  informative small-magnitude features.
+  (`StandardScaler`) -- otherwise a large-magnitude feature would dominate
+  the distance calculation over more informative small-magnitude features.
 - KNN: a lazy, instance-based classifier -- classifies a new email by
   majority vote of its `k` nearest neighbors in the training set.
 - SVM (RBF kernel): finds the maximum-margin boundary between the classes,
@@ -23,17 +22,16 @@ Approach
   each model, since for a spam filter false positives (real mail marked
   spam) and false negatives (spam that slips through) matter differently.
 
-Synthetic dataset
-------------------
-Kaggle's real spam-email feature dataset is not reachable from this
-environment (no internet access), so `build_dataset()` draws spam and ham
-rows from different distributions (spam skewed toward high word_freq_free/
-word_freq_win, many links, many capitalized words). Numbers below are
-illustrative of the technique, not results on the real Kaggle data.
+Dataset
+-------
+The real UCI Spambase dataset (archive.ics.uci.edu/dataset/94), 4601 emails
+with 57 features (48 word frequencies, 6 character frequencies, 3 capital-
+run-length stats) and a spam/not-spam label, saved locally at
+data/spambase.data (no header row -- column names are assigned in code).
 
 Likely viva questions
 ----------------------
-Q: Why scale features for KNN/SVM but not for Random Forest (Assignment 1)?
+Q: Why scale features for KNN/SVM but not for a tree-based model?
 A: KNN/SVM distance calculations treat raw numeric scale as meaningful, so
    an unscaled large feature would dominate. Tree-based splits are
    invariant to the scale of any single feature.
@@ -52,7 +50,8 @@ A: It lets the SVM compute similarity as if points had been mapped into a
    making non-linear separation computationally feasible.
 """
 
-import numpy as np
+from pathlib import Path
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -60,39 +59,28 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-RNG = np.random.default_rng(7)
-N_SAMPLES = 800
+# Falls back to a file dropped next to the script (e.g. exam machine) if the
+# dev-layout data/ copy isn't there.
+DATA_PATH = next(
+    (p for p in (Path(__file__).parent / "data" / "spambase.data", Path(__file__).parent / "spambase.data") if p.exists()),
+    Path(__file__).parent / "data" / "spambase.data",
+)
 
-
-# BUILD A SYNTHETIC SPAM/NOT-SPAM FEATURE TABLE
-
-def build_dataset(n=N_SAMPLES):
-    n_spam = n // 2
-    n_ham = n - n_spam
-
-    # Spam mail: lots of "free"/"win" words, many links, shouty capitals.
-    spam = pd.DataFrame({
-        "word_freq_free": RNG.gamma(3, 1.0, n_spam),
-        "word_freq_win": RNG.gamma(2.5, 1.0, n_spam),
-        "num_links": RNG.poisson(6, n_spam),
-        "num_capital_words": RNG.poisson(8, n_spam),
-        "email_length": RNG.normal(400, 100, n_spam),
-    })
-    spam["is_spam"] = 1
-
-    # Ham mail: those words rare, few links, few capitals.
-    ham = pd.DataFrame({
-        "word_freq_free": RNG.gamma(0.5, 0.3, n_ham),
-        "word_freq_win": RNG.gamma(0.4, 0.3, n_ham),
-        "num_links": RNG.poisson(1, n_ham),
-        "num_capital_words": RNG.poisson(1, n_ham),
-        "email_length": RNG.normal(600, 150, n_ham),
-    })
-    ham["is_spam"] = 0
-
-    df = pd.concat([spam, ham], ignore_index=True)
-    df["email_length"] = df["email_length"].clip(lower=20)  # no negative lengths
-    return df.sample(frac=1, random_state=42).reset_index(drop=True)  # shuffle
+# Spambase has no header row; these are the 57 feature names (in the exact
+# order given in spambase.names) plus the spam/not-spam label.
+WORD_FREQ_COLS = [
+    "make", "address", "all", "3d", "our", "over", "remove", "internet", "order", "mail",
+    "receive", "will", "people", "report", "addresses", "free", "business", "email", "you",
+    "credit", "your", "font", "000", "money", "hp", "hpl", "george", "650", "lab", "labs",
+    "telnet", "857", "data", "415", "85", "technology", "1999", "parts", "pm", "direct", "cs",
+    "meeting", "original", "project", "re", "edu", "table", "conference",
+]
+COLUMNS = (
+    [f"word_freq_{w}" for w in WORD_FREQ_COLS]
+    + ["char_freq_semicolon", "char_freq_paren", "char_freq_bracket", "char_freq_bang", "char_freq_dollar", "char_freq_hash"]
+    + ["capital_run_length_average", "capital_run_length_longest", "capital_run_length_total"]
+    + ["is_spam"]
+)
 
 
 def print_confusion_matrix(name, y_test, y_pred):
@@ -102,29 +90,36 @@ def print_confusion_matrix(name, y_test, y_pred):
 
 
 if __name__ == "__main__":
-    data = build_dataset()
+    data = pd.read_csv(DATA_PATH, header=None, names=COLUMNS)
     print(f"Dataset: {len(data)} emails, {data['is_spam'].sum()} spam / {(data['is_spam'] == 0).sum()} ham\n")
 
     X = data.drop(columns=["is_spam"])
     y = data["is_spam"]
+    # stratify=y keeps the spam/ham ratio the same in both splits
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
 
-    # KNN and SVM are distance-based, so features need scaling.
+    # KNN and SVM both classify by distance between points, so an unscaled
+    # large-magnitude feature would dominate that distance.
     scaler = StandardScaler()
     X_train_s = scaler.fit_transform(X_train)
     X_test_s = scaler.transform(X_test)
 
-    # K-NEAREST NEIGHBORS
+    # K-NEAREST NEIGHBORS: classifies a new email by majority vote of its
+    # 5 nearest neighbors in the training set (lazy, no real "training").
     knn = KNeighborsClassifier(n_neighbors=5)
     knn.fit(X_train_s, y_train)
     knn_pred = knn.predict(X_test_s)
 
-    # SUPPORT VECTOR MACHINE
+    # SUPPORT VECTOR MACHINE: finds the max-margin boundary between classes;
+    # the RBF kernel lets it separate classes that aren't linearly separable.
     svm = SVC(kernel="rbf", random_state=42)
     svm.fit(X_train_s, y_train)
     svm_pred = svm.predict(X_test_s)
 
-    # EVALUATION
+    # EVALUATION: accuracy/precision/recall/F1 + confusion matrix for each --
+    # for a spam filter, false positives (real mail marked spam) and false
+    # negatives (spam that slips through) matter differently, so one number
+    # isn't enough.
     results = {}
     for name, pred in [("KNN", knn_pred), ("SVM", svm_pred)]:
         results[name] = {
@@ -140,9 +135,3 @@ if __name__ == "__main__":
     print(f"{'Model':<10}{'Accuracy':>10}{'Precision':>12}{'Recall':>10}{'F1':>10}")
     for name, m in results.items():
         print(f"{name:<10}{m['accuracy']:>10.3f}{m['precision']:>12.3f}{m['recall']:>10.3f}{m['f1']:>10.3f}")
-
-    # SANITY CHECK: the two classes are deliberately well separated,
-    # so both classifiers should comfortably beat a coin flip.
-    for name, m in results.items():
-        assert m["accuracy"] > 0.8, f"{name} accuracy too low: {m['accuracy']}"
-    print("\nSanity check passed: both models reach accuracy > 0.8")

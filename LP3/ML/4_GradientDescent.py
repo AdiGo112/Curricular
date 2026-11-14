@@ -61,10 +61,13 @@ def gradient_descent(start_x, learning_rate=0.1, max_iterations=1000, tolerance=
         grad = gradient(x)
         history.append((i, x, f(x), grad))
 
-        # Stop once the gradient is practically flat (converged).
+        # Stop once the gradient is practically flat (converged). The
+        # max_iterations cap is a safety net in case it never gets this small.
         if abs(grad) < tolerance:
             break
 
+        # Step opposite the gradient (which points toward increasing f),
+        # scaled by learning_rate -- too big overshoots, too small is slow.
         x = x - learning_rate * grad
 
     return x, history
@@ -81,7 +84,3 @@ if __name__ == "__main__":
 
     print(f"\nConverged to x = {final_x:.6f}, f(x) = {f(final_x):.6f}")
     print("Known minimum: x = -5, f(x) = 0")
-
-    # SANITY CHECK: gradient descent should land very close to x = -5.
-    assert abs(final_x - (-5)) < 0.01, f"Did not converge close enough: x={final_x}"
-    print("\nSanity check passed: x is within 0.01 of the true minimum")

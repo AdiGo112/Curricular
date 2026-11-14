@@ -10,26 +10,27 @@ Forest Regression, then evaluate and compare them with R2 and RMSE.
 
 Approach
 --------
-- Preprocessing: fill missing values (median imputation), then detect and
-  drop outliers in `fare_amount` using the IQR rule (robust, doesn't assume
-  a normal distribution).
+- Preprocessing: drop rows with missing coordinates, drop physically
+  impossible rows (non-positive fares, GPS coordinates far outside the NYC
+  area, unrealistic passenger counts), then derive `distance_km` with the
+  haversine formula (the raw data only has pickup/dropoff lat/long, no
+  distance column) and `hour_of_day` from `pickup_datetime`. Outliers are
+  then detected and dropped on `fare_amount` using the IQR rule (robust,
+  doesn't assume a normal distribution).
 - Correlation: pandas `.corr()` on the cleaned data, as a sanity check that
   distance is actually driving fare before modelling.
 - Two regressors are compared: Linear Regression (fast, interpretable, but
   only fits a straight-line effect per feature) and Random Forest Regression
   (an ensemble of decision trees, able to capture non-linear effects such as
-  the night-time surge multiplier built into this dataset).
+  rush-hour/night pricing patterns).
 - Evaluation: R2 (fraction of variance explained) and RMSE (average error in
   the same units as the fare) on a held-out test split.
 
-Synthetic dataset
-------------------
-Kaggle's real "uber.csv" fare dataset is not reachable from this environment
-(no internet access), so `build_dataset()` generates distance/passengers/hour
-columns and a `fare_amount` from a realistic formula (base fare + per-km rate
-with a 1.3x night surge + per-passenger charge + Gaussian noise), with a few
-missing values and a few extreme-outlier fares injected on purpose. Numbers
-below are illustrative of the technique, not results on the real Kaggle data.
+Dataset
+-------
+The real Kaggle "Uber Fares Dataset" (yasserh/uber-fares-dataset), 200,000
+rides with fare, pickup/dropoff coordinates, pickup time and passenger
+count, saved locally at data/uber.csv.
 
 Likely viva questions
 ----------------------
@@ -42,14 +43,19 @@ A: IQR adapts to the actual spread of the data and doesn't assume a normal
    distribution, unlike a fixed percentile or z-score cutoff.
 
 Q: Why might Random Forest outperform Linear Regression here?
-A: The fare formula has a non-linear piece (the night surge). Linear
-   Regression can only fit a straight-line effect per feature; Random Forest
-   can split on `hour_of_day` and model the surge directly.
+A: Real fares have non-linear effects (e.g. time-of-day pricing patterns).
+   Linear Regression can only fit a straight-line effect per feature;
+   Random Forest can split on `hour_of_day` and `distance_km` to model
+   those patterns directly.
 
-Q: Why fill missing distance with the median rather than the mean?
-A: The median isn't pulled around by extreme values, so it's a more
-   representative "typical" value when the data isn't symmetric.
+Q: Why drop rows with missing/invalid coordinates instead of imputing them?
+A: A GPS coordinate can't be meaningfully imputed the way a plain numeric
+   feature can (there's no "typical" location); only a handful of rows are
+   affected, so dropping them loses negligible data while avoiding
+   fabricated pickup/dropoff points.
 """
+
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -58,55 +64,55 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, root_mean_squared_error
 
-RNG = np.random.default_rng(42)
-N_SAMPLES = 1000
+# Falls back to a CSV dropped next to the script (e.g. exam machine) if the
+# dev-layout data/ copy isn't there.
+DATA_PATH = next(
+    (p for p in (Path(__file__).parent / "data" / "uber.csv", Path(__file__).parent / "uber.csv") if p.exists()),
+    Path(__file__).parent / "data" / "uber.csv",
+)
+
+# Rough bounding box around NYC, used to drop GPS-error rows (the raw data
+# has coordinates like longitude=-1340 or latitude=872, which are nonsense).
+LON_RANGE = (-75.0, -72.0)
+LAT_RANGE = (40.0, 42.0)
 
 
-# BUILD A SYNTHETIC "UBER FARES" DATASET
-
-def build_dataset(n=N_SAMPLES):
-    distance_km = RNG.uniform(0.5, 30, n)
-    passenger_count = RNG.integers(1, 5, n)
-    hour_of_day = RNG.integers(0, 24, n)
-
-    # Real-world-ish fare formula: base fare + per-km rate + small surge at
-    # night/rush hour + per-passenger charge + noise.
-    night_surge = np.where((hour_of_day >= 22) | (hour_of_day <= 5), 1.3, 1.0)
-    fare_amount = (
-        2.5
-        + 1.8 * distance_km * night_surge
-        + 0.5 * passenger_count
-        + RNG.normal(0, 2.0, n)
-    )
-
-    df = pd.DataFrame({
-        "distance_km": distance_km,
-        "passenger_count": passenger_count,
-        "hour_of_day": hour_of_day,
-        "fare_amount": fare_amount,
-    })
-
-    # Inject a few missing values, like a real scraped dataset would have.
-    null_idx = RNG.choice(n, size=max(1, n // 100), replace=False)
-    df.loc[null_idx, "distance_km"] = np.nan
-
-    # Inject a handful of extreme outlier fares (e.g. bad GPS / fraud rides).
-    outlier_idx = RNG.choice(n, size=max(1, n // 100), replace=False)
-    df.loc[outlier_idx, "fare_amount"] *= 8
-
-    return df
+# HAVERSINE DISTANCE (km) BETWEEN TWO LAT/LONG POINTS ON EARTH'S SURFACE
+def haversine_km(lat1, lon1, lat2, lon2):
+    r = 6371.0  # Earth's radius in km
+    lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
+    return r * 2 * np.arcsin(np.sqrt(a))
 
 
-# PREPROCESSING: fill missing values
-
+# PREPROCESSING: drop unusable rows, then derive distance_km and hour_of_day
 def preprocess(df):
     df = df.copy()
-    df["distance_km"] = df["distance_km"].fillna(df["distance_km"].median())
-    return df
+
+    # Drop rows with missing coordinates (a handful in this dataset).
+    coord_cols = ["pickup_longitude", "pickup_latitude", "dropoff_longitude", "dropoff_latitude"]
+    df = df.dropna(subset=coord_cols)
+
+    # Drop physically impossible rows: non-positive fares, bad GPS fixes
+    # outside the NYC area, and unrealistic passenger counts.
+    df = df[df["fare_amount"] > 0]
+    df = df[df["pickup_longitude"].between(*LON_RANGE) & df["dropoff_longitude"].between(*LON_RANGE)]
+    df = df[df["pickup_latitude"].between(*LAT_RANGE) & df["dropoff_latitude"].between(*LAT_RANGE)]
+    df = df[df["passenger_count"].between(1, 6)]
+
+    df["distance_km"] = haversine_km(
+        df["pickup_latitude"], df["pickup_longitude"], df["dropoff_latitude"], df["dropoff_longitude"]
+    )
+    df["hour_of_day"] = pd.to_datetime(df["pickup_datetime"]).dt.hour
+
+    return df[["distance_km", "passenger_count", "hour_of_day", "fare_amount"]].reset_index(drop=True)
 
 
-# OUTLIER DETECTION ON fare_amount USING THE IQR RULE
-
+# OUTLIER DETECTION ON fare_amount USING THE IQR RULE: anything more than
+# 1.5x the interquartile range outside the middle 50% of fares is dropped.
+# IQR adapts to the data's actual spread, unlike a fixed cutoff.
 def remove_outliers_iqr(df, column="fare_amount"):
     q1 = df[column].quantile(0.25)
     q3 = df[column].quantile(0.75)
@@ -122,10 +128,12 @@ def remove_outliers_iqr(df, column="fare_amount"):
 
 
 if __name__ == "__main__":
-    data = build_dataset()
-    print(f"Raw dataset: {len(data)} rows, {data.isna().sum().sum()} missing values")
+    data = pd.read_csv(DATA_PATH)
+    print(f"Raw dataset: {len(data)} rows")
 
     data = preprocess(data)
+    print(f"After dropping missing/invalid rows: {len(data)} rows")
+
     data, n_flagged = remove_outliers_iqr(data)
     print(f"Outliers flagged and removed (IQR rule on fare_amount): {n_flagged}")
     print(f"Dataset after cleaning: {len(data)} rows\n")
@@ -135,22 +143,26 @@ if __name__ == "__main__":
     print(data.corr().round(2))
     print()
 
-    # TRAIN/TEST SPLIT
+    # TRAIN/TEST SPLIT: hold out 20% of rows, unseen by training, to evaluate on
     X = data[["distance_km", "passenger_count", "hour_of_day"]]
     y = data["fare_amount"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # LINEAR REGRESSION
+    # LINEAR REGRESSION: fast, interpretable, but only fits a straight-line
+    # effect per feature.
     lin_model = LinearRegression()
     lin_model.fit(X_train, y_train)
     lin_pred = lin_model.predict(X_test)
 
-    # RANDOM FOREST REGRESSION
+    # RANDOM FOREST REGRESSION: an ensemble of 100 decision trees (each on a
+    # bootstrap sample, predictions averaged), able to capture non-linear
+    # effects such as rush-hour/night pricing patterns.
     rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
     rf_model.fit(X_train, y_train)
     rf_pred = rf_model.predict(X_test)
 
-    # EVALUATION: R2 and RMSE for both models
+    # EVALUATION: R2 (fraction of variance explained, relative) and RMSE
+    # (average error in the same units as the fare, absolute) for both models
     results = {
         "Linear Regression": (r2_score(y_test, lin_pred), root_mean_squared_error(y_test, lin_pred)),
         "Random Forest": (r2_score(y_test, rf_pred), root_mean_squared_error(y_test, rf_pred)),
@@ -160,9 +172,3 @@ if __name__ == "__main__":
     print(f"{'Model':<20}{'R2':>10}{'RMSE':>10}")
     for name, (r2, rmse) in results.items():
         print(f"{name:<20}{r2:>10.3f}{rmse:>10.3f}")
-
-    # SANITY CHECK: the synthetic relationship is strong by construction,
-    # so a reasonable model should explain most of the variance.
-    for name, (r2, _) in results.items():
-        assert r2 > 0.5, f"{name} R2 too low: {r2}"
-    print("\nSanity check passed: both models reach R2 > 0.5")
