@@ -12,29 +12,17 @@ pragma solidity ^0.8.0;
 contract BankAccount {
     mapping(address => uint256) private balances;
 
-    event Deposit(address indexed account, uint256 amount, uint256 newBalance);
-    event Withdraw(address indexed account, uint256 amount, uint256 newBalance);
-
-    // Deposit Ether sent along with the call into the caller's balance.
     function deposit() external payable {
-        require(msg.value > 0, "Deposit amount must be greater than zero");
         balances[msg.sender] += msg.value;
-        emit Deposit(msg.sender, msg.value, balances[msg.sender]);
     }
 
-    // Withdraw a specific amount from the caller's own balance.
     function withdraw(uint256 amount) external {
-        require(amount > 0, "Withdraw amount must be greater than zero");
         require(balances[msg.sender] >= amount, "Insufficient balance");
-
         balances[msg.sender] -= amount;
         (bool sent, ) = payable(msg.sender).call{value: amount}("");
         require(sent, "Transfer failed");
-
-        emit Withdraw(msg.sender, amount, balances[msg.sender]);
     }
 
-    // Read-only: view the caller's current balance. No gas cost off-chain.
     function getBalance() external view returns (uint256) {
         return balances[msg.sender];
     }
@@ -44,9 +32,8 @@ contract BankAccount {
 Notes on the code:
 - `balances` is a `mapping(address => uint256)` so each caller's funds are tracked separately inside one shared contract.
 - `deposit()` is `payable` — it is the only way the contract can receive Ether attached to a call.
-- `withdraw()` uses `require` to revert (undoing all state changes and refunding unused gas) if the amount is invalid or exceeds the caller's recorded balance, before any funds move (checks-effects-interactions pattern: balance is deducted before the external `call`, to avoid re-entrancy).
+- `withdraw()` uses `require` to revert (undoing all state changes and refunding unused gas) if the amount exceeds the caller's recorded balance, before any funds move (checks-effects-interactions pattern: balance is deducted before the external `call`, to avoid re-entrancy).
 - `getBalance()` is `view` — it only reads state, never writes it.
-- `Deposit` and `Withdraw` events let off-chain code (and MetaMask's activity log) show what happened without re-reading storage.
 
 ## Deployment Steps (Remix IDE, no local setup)
 
@@ -65,16 +52,13 @@ Notes on the code:
 ```mermaid
 flowchart LR
     Caller["Caller (via MetaMask)"] -->|"deposit() + value"| C["BankAccount Contract"]
-    C -->|require msg.value > 0| C
     C -->|balances[sender] += value| State1[("Contract Storage")]
-    C -->|emit Deposit| Log1[Event Log]
 
     Caller -->|withdraw(amount)| C
     C -->|require balances[sender] >= amount| Check{Enough balance?}
     Check -->|No| Revert["Revert (state unchanged, gas still spent)"]
     Check -->|Yes| State2[("balances[sender] -= amount")]
     State2 --> Transfer["call{value: amount}(sender)"]
-    Transfer --> Log2[Event Log: Withdraw]
 
     Caller -->|getBalance() - view, off-chain simulation| C
     C -->|read only, no state change| Caller
@@ -96,7 +80,6 @@ In short: any function marked `view`/`pure` is free when invoked as a read; any 
 - **`require`**: reverts the transaction (and refunds unused gas) if a condition fails.
 - **Checks-effects-interactions**: deduct balance before sending ETH out, to prevent re-entrancy.
 - **`view` function**: read-only, no gas cost off-chain (`getBalance`).
-- **Events**: `Deposit`/`Withdraw`, cheap way to log history off-chain.
 
 ## Viva Questions
 1. **Why does `withdraw` check `balances[msg.sender] >= amount` before transferring?** To prevent withdrawing more than the caller actually deposited; `require` reverts cleanly if it fails.
@@ -104,4 +87,3 @@ In short: any function marked `view`/`pure` is free when invoked as a read; any 
 3. **Why is `getBalance` free to call?** It's marked `view`; called off-chain it only reads state, never submitted as a mined transaction.
 4. **What makes `deposit` able to receive ETH?** The `payable` modifier; `msg.value` is the ETH amount sent with the call.
 5. **What happens on deployment, gas-wise?** Deploying writes the contract's bytecode to the chain, which itself costs gas, separate from any later function calls.
-6. **Why use events instead of just storage for history?** Events are much cheaper than storage writes and are easily queried off-chain (e.g. by a UI), without bloating contract storage.
