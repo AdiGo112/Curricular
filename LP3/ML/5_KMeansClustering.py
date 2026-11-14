@@ -71,7 +71,12 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-DATA_PATH = Path(__file__).parent / "data" / "sales_data_sample.csv"
+# Falls back to a CSV dropped next to the script (e.g. exam machine) if the
+# dev-layout data/ copy isn't there.
+DATA_PATH = next(
+    (p for p in (Path(__file__).parent / "data" / "sales_data_sample.csv", Path(__file__).parent / "sales_data_sample.csv") if p.exists()),
+    Path(__file__).parent / "data" / "sales_data_sample.csv",
+)
 OUTPUT_PNG = Path(__file__).parent / "elbow_curve.png"
 
 

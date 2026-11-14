@@ -62,7 +62,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
-DATA_PATH = Path(__file__).parent / "data" / "Churn_Modelling.csv"
+# Falls back to a CSV dropped next to the script (e.g. exam machine) if the
+# dev-layout data/ copy isn't there.
+DATA_PATH = next(
+    (p for p in (Path(__file__).parent / "data" / "Churn_Modelling.csv", Path(__file__).parent / "Churn_Modelling.csv") if p.exists()),
+    Path(__file__).parent / "data" / "Churn_Modelling.csv",
+)
 
 if __name__ == "__main__":
     data = pd.read_csv(DATA_PATH)

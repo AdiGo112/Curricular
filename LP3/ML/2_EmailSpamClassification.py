@@ -59,7 +59,12 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-DATA_PATH = Path(__file__).parent / "data" / "spambase.data"
+# Falls back to a file dropped next to the script (e.g. exam machine) if the
+# dev-layout data/ copy isn't there.
+DATA_PATH = next(
+    (p for p in (Path(__file__).parent / "data" / "spambase.data", Path(__file__).parent / "spambase.data") if p.exists()),
+    Path(__file__).parent / "data" / "spambase.data",
+)
 
 # Spambase has no header row; these are the 57 feature names (in the exact
 # order given in spambase.names) plus the spam/not-spam label.

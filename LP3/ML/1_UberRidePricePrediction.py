@@ -64,7 +64,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, root_mean_squared_error
 
-DATA_PATH = Path(__file__).parent / "data" / "uber.csv"
+# Falls back to a CSV dropped next to the script (e.g. exam machine) if the
+# dev-layout data/ copy isn't there.
+DATA_PATH = next(
+    (p for p in (Path(__file__).parent / "data" / "uber.csv", Path(__file__).parent / "uber.csv") if p.exists()),
+    Path(__file__).parent / "data" / "uber.csv",
+)
 
 # Rough bounding box around NYC, used to drop GPS-error rows (the raw data
 # has coordinates like longitude=-1340 or latitude=872, which are nonsense).
