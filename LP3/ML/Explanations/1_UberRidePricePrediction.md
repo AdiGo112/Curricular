@@ -13,15 +13,17 @@ Forest Regression, then evaluate and compare them with R2 and RMSE.
   distance column), and `hour_of_day` and `year` from `pickup_datetime`.
   Rides with zero distance (pickup and dropoff at the same point) are
   dropped, since a fare with no trip is noise.
-- **Outliers**: a boxplot of `fare_amount` shows them visually. They are
-  then detected and dropped using the IQR rule (robust, doesn't assume a
-  normal distribution).
-- **Correlation**: pandas `.corr()` on the cleaned data, as a sanity check
-  that distance is actually driving fare before modelling.
+- **Outliers**: a boxplot of `fare_amount` and `distance_km` shows them
+  visually. They are then detected and dropped from both columns using the
+  IQR rule (robust, doesn't assume a normal distribution).
+- **Correlation**: pandas `.corr()` on the cleaned data, shown as a table
+  and a heatmap, as a sanity check that distance is actually driving fare
+  before modelling.
 - **Two regressors are compared**: Linear Regression (fast, interpretable,
   but only fits a straight-line effect per feature) and Random Forest
   Regression (an ensemble of decision trees, able to capture non-linear
-  effects such as rush-hour/night pricing patterns).
+  effects such as rush-hour/night pricing patterns). The trees are limited
+  to `max_depth=10` so they don't memorise the training data.
 - **Evaluation**: R2 (fraction of variance explained) and RMSE (average
   error in the same units as the fare) on a held-out test split.
 
@@ -30,25 +32,43 @@ Forest Regression, then evaluate and compare them with R2 and RMSE.
   New York City. The raw data has GPS errors such as longitude -1340, and
   this filter drops them.
 - `6371` in the haversine formula is the Earth's radius in km.
-- IQR rule: a fare is an outlier if it is below `Q1 - 1.5 * IQR` or above
+- IQR rule: a value is an outlier if it is below `Q1 - 1.5 * IQR` or above
   `Q3 + 1.5 * IQR`, where `IQR = Q3 - Q1`.
-- The boxplot is saved as `fare_boxplot.png`. The points beyond the whiskers
-  are the outliers, and the whiskers sit at the same `1.5 * IQR` limits the
-  code uses.
+- Distance outliers matter as much as fare outliers: the raw data has rides
+  of 60 to 100 km with fares of a few dollars, and they pulled Linear
+  Regression into predicting fares of 140.
+- Without a depth limit the forest scored R2 0.95 on the training data but
+  0.64 on the test data, which is overfitting. With `max_depth=10` the two
+  are 0.72 and 0.69.
 - The data file is read from `data/uber.csv`, or from `uber.csv` next to the
   script if the `data/` copy is missing.
 
+## Graphs
+
+| File | What it shows |
+| --- | --- |
+| `outlier_boxplot.png` | Boxplots of fare and distance. Points beyond the whiskers are the outliers, and the whiskers sit at the same `1.5 * IQR` limits the code uses. |
+| `correlation_heatmap.png` | The correlation matrix as colours. Red is positive, blue is negative. |
+| `distance_vs_fare.png` | Fare against distance after cleaning. Fare rises with distance. |
+| `predicted_vs_actual.png` | Predicted against actual fare for both models. Points on the red diagonal are perfect predictions. |
+
+Reading the scatter plots: the dots are transparent, so darker areas hold
+more rides. The stripes are real, because fares only come in fixed steps.
+The sharp edges at fare 22 and distance 6.5 km are where the outlier rule
+cut the data.
+
 ## Results
-16,517 fare outliers are removed. Correlation with fare: distance 0.71,
-year 0.14, passenger count 0.01, hour -0.01.
+24,262 rows are removed as fare or distance outliers. Correlation with fare:
+distance 0.80, year 0.17, passenger count 0.02, hour 0.01.
 
 | Model | R2 | RMSE |
 | --- | --- | --- |
-| Linear Regression | 0.560 | 2.753 |
-| Random Forest | 0.704 | 2.258 |
+| Linear Regression | 0.663 | 2.150 |
+| Random Forest | 0.694 | 2.049 |
 
-Random Forest explains more of the variance and is off by about 2.26 dollars
-on average, against 2.75 for Linear Regression.
+Random Forest explains slightly more of the variance and is off by about
+2.05 dollars on average, against 2.15 for Linear Regression. The gap is small
+because, once outliers are gone, fare depends on distance almost linearly.
 
 ## Dataset
 The real Kaggle "Uber Fares Dataset" (yasserh/uber-fares-dataset), 200,000
@@ -71,9 +91,19 @@ Linear Regression can only fit a straight-line effect per feature; Random
 Forest can split on `hour_of_day` and `distance_km` to model those patterns
 directly.
 
+**Q: Why is the gap between the two models so small?**
+A: After cleaning, distance explains most of the fare and the relationship
+is close to a straight line, which Linear Regression fits well. Random
+Forest only adds the smaller non-linear effects.
+
+**Q: Why limit the depth of the trees?**
+A: Fully grown trees fit the noise in the training data: R2 was 0.95 on
+training data but 0.64 on test data. A depth limit forces each tree to
+learn only the broad pattern, which generalises better.
+
 **Q: Why is `year` a useful feature?**
 A: Fares rose over the years the data covers (2009 to 2015), so the same
-trip costs more in a later year. Its correlation with fare is 0.14, the
+trip costs more in a later year. Its correlation with fare is 0.17, the
 second highest after distance.
 
 **Q: How do you read outliers from a boxplot?**

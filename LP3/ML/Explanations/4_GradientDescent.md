@@ -22,6 +22,10 @@ converges.
 - The gradient is the derivative: `d/dx (x + 5)^2 = 2(x + 5)`.
 - Start `x = 10`, learning rate `0.1`, tolerance `1e-6`, at most 1000 steps.
 - It converges to `x = -5`, `f(x) = 0` after 78 steps.
+- Every `x` visited is kept in `path`. The plot `gradient_descent.png` draws
+  the curve in blue and the path in red: the steps are large where the curve
+  is steep and shrink as it flattens near the minimum, because the step size
+  is the learning rate times the gradient.
 
 ## Viva prep
 

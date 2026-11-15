@@ -31,6 +31,9 @@ Tenure, Balance, etc.
 - Result on the test set: accuracy 0.873, confusion matrix
   `[[1551, 42], [213, 194]]`. Churn precision is 194/236 = 0.82 and recall is
   194/407 = 0.48, so the model misses about half of the real churners.
+- The confusion matrix is also drawn as a heatmap and saved as
+  `confusion_matrix.png`. Rows are the true class, columns the predicted
+  class.
 
 ## Dataset
 The real Kaggle "Churn_Modelling.csv" (bank customer churn), 10,000
