@@ -28,6 +28,12 @@ pick the number of clusters k.
   `y = 1 - x`, so the gap below it is `1 - scaled - x`, and the k with the
   largest gap is the elbow.
 - The elbow comes out at k = 3 and the plot is saved as `elbow_curve.png`.
+- `kmeans_clusters.png` plots scaled quantity against scaled sales,
+  coloured by K-Means cluster.
+- `hierarchical_clusters.png` is the same plot for hierarchical
+  (agglomerative, Ward linkage) clustering with the same k, for comparison.
+  It merges the closest groups bottom-up instead of moving centroids, so
+  the boundaries differ a little.
 - The final table shows, per cluster, the number of orders and the mean
   quantity and sales in original units.
 

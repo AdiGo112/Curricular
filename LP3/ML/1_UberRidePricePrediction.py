@@ -27,8 +27,10 @@ df["hour_of_day"] = pickup_time.dt.hour
 df["year"] = pickup_time.dt.year
 df = df[df.distance_km > 0][["distance_km", "passenger_count", "hour_of_day", "year", "fare_amount"]]
 
+plt.figure()
 df.boxplot(column=["fare_amount", "distance_km"])
 plt.savefig(HERE / "outlier_boxplot.png")
+plt.show()
 
 rows = len(df)
 for column in ["fare_amount", "distance_km"]:
@@ -43,10 +45,17 @@ plt.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
 plt.xticks(range(len(corr)), corr.columns, rotation=45)
 plt.yticks(range(len(corr)), corr.columns)
 plt.colorbar()
+for i in range(len(corr)):
+    for j in range(len(corr)):
+        value = corr.iloc[i, j]
+        plt.text(j, i, f"{value:.2f}", ha="center", va="center", color="white" if abs(value) > 0.5 else "black")
+plt.title("Correlation Heatmap")
 plt.savefig(HERE / "correlation_heatmap.png", bbox_inches="tight")
+plt.show()
 
-df.plot.scatter("distance_km", "fare_amount", s=1, alpha=0.05)
+df.sample(2000, random_state=42).plot.scatter("distance_km", "fare_amount", s=20, edgecolors="white", linewidths=0.4)
 plt.savefig(HERE / "distance_vs_fare.png")
+plt.show()
 
 X, y = df.drop(columns="fare_amount"), df.fare_amount
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -56,7 +65,9 @@ axes = plt.subplots(1, 2, figsize=(10, 4))[1]
 for ax, (name, model) in zip(axes, models.items()):
     pred = model.fit(X_train, y_train).predict(X_test)
     print(f"{name}: R2 = {r2_score(y_test, pred):.3f}, RMSE = {root_mean_squared_error(y_test, pred):.3f}")
-    ax.scatter(y_test, pred, s=1, alpha=0.05)
+    ax.scatter(y_test[:2000], pred[:2000], s=20, edgecolors="white", linewidths=0.4)
     ax.plot([0, y_test.max()], [0, y_test.max()], color="red")
     ax.set(title=name, xlabel="Actual fare", ylabel="Predicted fare")
+plt.tight_layout()
 plt.savefig(HERE / "predicted_vs_actual.png")
+plt.show()

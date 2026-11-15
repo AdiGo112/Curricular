@@ -29,3 +29,4 @@ print(confusion_matrix(y_test, pred))
 
 ConfusionMatrixDisplay.from_predictions(y_test, pred, display_labels=["Stayed", "Churned"])
 plt.savefig(HERE / "confusion_matrix.png")
+plt.show()

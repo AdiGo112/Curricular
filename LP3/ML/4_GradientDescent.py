@@ -23,8 +23,10 @@ for _ in range(1000):
 print(f"Minimum at x = {x:.4f}, f(x) = {f(x):.4f}, after {len(path) - 1} steps")
 
 curve = [i / 10 for i in range(-200, 101)]
+plt.figure()
 plt.plot(curve, [f(c) for c in curve])
 plt.plot(path, [f(p) for p in path], "ro-")
 plt.xlabel("x")
 plt.ylabel("f(x)")
 plt.savefig(Path(__file__).parent / "gradient_descent.png")
+plt.show()

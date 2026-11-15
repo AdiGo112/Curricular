@@ -38,3 +38,4 @@ for file, display in plots.items():
     for name, model in models.items():
         display.from_estimator(model, X_test, y_test, name=name, ax=ax)
     plt.savefig(HERE / file)
+    plt.show()

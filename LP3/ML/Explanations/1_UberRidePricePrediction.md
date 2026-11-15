@@ -48,12 +48,13 @@ Forest Regression, then evaluate and compare them with R2 and RMSE.
 | File | What it shows |
 | --- | --- |
 | `outlier_boxplot.png` | Boxplots of fare and distance. Points beyond the whiskers are the outliers, and the whiskers sit at the same `1.5 * IQR` limits the code uses. |
-| `correlation_heatmap.png` | The correlation matrix as colours. Red is positive, blue is negative. |
-| `distance_vs_fare.png` | Fare against distance after cleaning. Fare rises with distance. |
-| `predicted_vs_actual.png` | Predicted against actual fare for both models. Points on the red diagonal are perfect predictions. |
+| `correlation_heatmap.png` | The correlation matrix as colours, with each value written in its cell. Red is positive, blue is negative. |
+| `distance_vs_fare.png` | Fare against distance after cleaning, for a random sample of 2,000 rides. Fare rises with distance. |
+| `predicted_vs_actual.png` | Predicted against actual fare for both models, for the first 2,000 test rides. Points on the red diagonal are perfect predictions. |
 
-Reading the scatter plots: the dots are transparent, so darker areas hold
-more rides. The stripes are real, because fares only come in fixed steps.
+Reading the scatter plots: only 2,000 rides are drawn so the dots stay
+separate; the models still train and score on all rides. Fares only come
+in fixed steps, so dots line up in rows.
 The sharp edges at fare 22 and distance 6.5 km are where the outlier rule
 cut the data.
 
