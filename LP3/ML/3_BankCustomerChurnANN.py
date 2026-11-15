@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
@@ -25,3 +26,6 @@ pred = model.fit(X_train, y_train).predict(X_test)
 
 print("Accuracy:", round(accuracy_score(y_test, pred), 3))
 print(confusion_matrix(y_test, pred))
+
+ConfusionMatrixDisplay.from_predictions(y_test, pred, display_labels=["Stayed", "Churned"])
+plt.savefig(HERE / "confusion_matrix.png")
